@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+[RequireComponent (typeof (CharacterMotor))]
 public class FirstPersonController : MonoBehaviour {
 	public Animator Ani;
 	private Vector3 moveDirection = Vector3.zero;
@@ -15,6 +16,8 @@ public class FirstPersonController : MonoBehaviour {
 	public GameObject camera;
 	public GameObject bulletHole;
 	public LayerMask bulletHoleMask;
+	CharacterMotor motor;
+
 	bool forward=false;
 	bool backward=false;
 	bool left=false;
@@ -32,6 +35,8 @@ public class FirstPersonController : MonoBehaviour {
 		//bulletHoleMask = ~bulletHoleMask;
 		controller = GetComponent<CharacterController>();
 		bulletHoles=new ArrayList();
+		motor=this.GetComponent<CharacterMotor>();
+
 	}
 
 
@@ -68,6 +73,7 @@ public class FirstPersonController : MonoBehaviour {
 
 	// Update is called once per frame
 	void Update () {
+		Debug.Log(controller.velocity.magnitude);
 		Debug.DrawRay(camera.transform.position, camera.transform.forward*100, Color.red);
 		if (fireDelay > 0) {
 			fireDelay-=Time.deltaTime;
@@ -82,42 +88,50 @@ public class FirstPersonController : MonoBehaviour {
 		//뜀 Y=1.486 Z=0.297
 		switch(getDirection()){
 			case -2 : {//↙
-				controller.Move (transform.right*-1f * speed * Time.deltaTime*sin45*0.5f);
-				controller.Move (transform.forward *-1f* speed * Time.deltaTime*sin45*0.5f);
+				motor.inputMoveDirection=(-transform.right-transform.forward)*sin45*0.5f;
+				//controller.Move (transform.right*-1f * speed * Time.deltaTime*sin45*0.5f);
+				//controller.Move (transform.forward *-1f* speed * Time.deltaTime*sin45*0.5f);
 				Ani.SetFloat ("runDirect",-1);
 				isBW=true;
 				break;
 			}case 4 : {//↘
-				controller.Move (transform.right * speed * Time.deltaTime*sin45*0.5f);
-				controller.Move (transform.forward *-1f* speed * Time.deltaTime*sin45*0.5f);
+				motor.inputMoveDirection=(transform.right-transform.forward)*sin45*0.5f;
+				//controller.Move (transform.right * speed * Time.deltaTime*sin45*0.5f);
+				//controller.Move (transform.forward *-1f* speed * Time.deltaTime*sin45*0.5f);
 				Ani.SetFloat ("runDirect",1);
 				isBW=true;
 				break;
 			}case -4 : {//↖
-				controller.Move (transform.right*-1f * speed * Time.deltaTime*sin45);
-				controller.Move (transform.forward * speed * Time.deltaTime*sin45);
+				motor.inputMoveDirection=(-transform.right+transform.forward)*sin45;
+				//controller.Move (transform.right*-1f * speed * Time.deltaTime*sin45);
+				//controller.Move (transform.forward * speed * Time.deltaTime*sin45);
 				Ani.SetFloat ("runDirect",-1);
 				break;
 			}case 2 : {//↗
-				controller.Move (transform.right * speed * Time.deltaTime*sin45);
-				controller.Move (transform.forward * speed * Time.deltaTime*sin45);
+				motor.inputMoveDirection=(transform.right+transform.forward)*sin45;
+				//controller.Move (transform.right * speed * Time.deltaTime*sin45);
+				//controller.Move (transform.forward * speed * Time.deltaTime*sin45);
 				Ani.SetFloat ("runDirect",1);
 
 				break;
 			}case -3 : {//←
-				controller.Move (transform.right*-1f * speed * Time.deltaTime*0.5f);
+				motor.inputMoveDirection=-transform.right*0.5f;
+				//controller.Move (transform.right*-1f * speed * Time.deltaTime*0.5f);
 				Ani.SetFloat ("runDirect",-1);
 				break;
 			}case 3 : {//→
-				controller.Move (transform.right * speed * Time.deltaTime*0.5f);
+				motor.inputMoveDirection=transform.right*0.5f;
+				//controller.Move (transform.right * speed * Time.deltaTime*0.5f);
 				Ani.SetFloat ("runDirect",1);
 				break;
 			}case 1 : {//↓
-				controller.Move (transform.forward *-1f* speed *0.5f* Time.deltaTime);
+				motor.inputMoveDirection=-transform.forward*0.5f;
+				//controller.Move (transform.forward *-1f* speed *0.5f* Time.deltaTime);
 				isBW=true;
 				break;
 			}case -1 : {//↑
-				controller.Move (transform.forward * speed * Time.deltaTime);
+				motor.inputMoveDirection=transform.forward;
+				//controller.Move (transform.forward * speed * Time.deltaTime);
 				break;
 			}
 		}
@@ -162,4 +176,5 @@ public class FirstPersonController : MonoBehaviour {
 	public void Fire(bool val)	{
 		shooting=val;
 	}
+
 }
