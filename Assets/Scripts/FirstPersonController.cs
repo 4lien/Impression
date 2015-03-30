@@ -73,7 +73,6 @@ public class FirstPersonController : MonoBehaviour {
 
 	// Update is called once per frame
 	void Update () {
-		Debug.Log(controller.velocity.magnitude);
 		Debug.DrawRay(camera.transform.position, camera.transform.forward*100, Color.red);
 		if (fireDelay > 0) {
 			fireDelay-=Time.deltaTime;
