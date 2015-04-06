@@ -2,7 +2,7 @@
 using System.Collections;
 
 [RequireComponent (typeof (CharacterMotor))]
-public class FirstPersonController : MonoBehaviour {
+public class FirstPersonController : GameObjectParent {
 	public Animator Ani;
 	private Vector3 moveDirection = Vector3.zero;
 	public float speed = 6.0F;
@@ -36,7 +36,8 @@ public class FirstPersonController : MonoBehaviour {
 		controller = GetComponent<CharacterController>();
 		bulletHoles=new ArrayList();
 		motor=this.GetComponent<CharacterMotor>();
-
+		damage = 80;
+		hp = 100;
 	}
 
 
@@ -46,12 +47,15 @@ public class FirstPersonController : MonoBehaviour {
 	int lastBullet = 0;
 
 	void gunFire(){
-		if (fireDelay == 0) {
+		if (fireDelay == 0) {	//빵하고 쏨.
 			fireDelay += Time.deltaTime*gunSpeed;
 			AudioSource.PlayClipAtPoint (fireSnd, muzzlePosition.transform.position);
 			Instantiate(muzzleFlash,muzzlePosition.transform.position,transform.rotation);
 			Physics.Raycast (camera.transform.position, camera.transform.forward,out hit, 100);
+
 			if(hit.transform==null)return;
+			if(hit.transform.tag=="unstatic")
+				hit.transform.SendMessageUpwards("hit",damage);
 			/* 탄흔 그리기 */
 			if(hit.transform.tag!="unstatic"&&hit.transform.tag!="Player"){
 				if(lastBullet>=arrayLength)lastBullet=0;	//끝까지 갔으면 처음으로

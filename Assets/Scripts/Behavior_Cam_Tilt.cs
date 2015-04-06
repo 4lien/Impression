@@ -20,8 +20,6 @@ public class Behavior_Cam_Tilt : MonoBehaviour {
 		camPos = GameObject.Find ("CamPosition");
 	} 
 	void Update() {
-
-
 		/* 부모객체 바라보는 좌우 y축 방향 일치 */
 		Vector3 v = player.transform.eulerAngles;
 		Vector3 v2 = transform.eulerAngles;
