@@ -9,6 +9,7 @@ public static class BlutoothManager{
 	public static bool	isReady = false;
 	// Use this for initialization/*
 	public static void Awake () {
+
 		AndroidJNI.AttachCurrentThread();
 		_Init();
 	}
@@ -23,7 +24,7 @@ public static class BlutoothManager{
 	
 	public static int _Init()
 	{
-		AndroidJavaClass 		_androdiJC = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
+		AndroidJavaClass _androdiJC = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
 		
 		if( _androdiJC != null )
 		{
