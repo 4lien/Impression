@@ -8,6 +8,7 @@ public class FirstPersonController : GameObjectParent {
 	public float speed = 6.0F;
 	public float jumpSpeed = 8.0F;
 	public float gravity = 20.0F;
+	public float hitRange= 5F;
 	public Transform me;
 	public AudioClip fireSnd;
 	public GameObject muzzleFlash;
@@ -15,6 +16,7 @@ public class FirstPersonController : GameObjectParent {
 	public GameObject muzzlePosition;
 	public GameObject camera;
 	public GameObject bulletHole;
+	public LayerMask dynamicLayer;
 	public LayerMask bulletHoleMask;
 	CharacterMotor motor;
 
@@ -43,7 +45,7 @@ public class FirstPersonController : GameObjectParent {
 
 
 	RaycastHit hit;
-
+	//RaycastHit hit2;
 	int lastBullet = 0;
 
 	void gunFire(){
@@ -51,8 +53,11 @@ public class FirstPersonController : GameObjectParent {
 			fireDelay += Time.deltaTime*gunSpeed;
 			AudioSource.PlayClipAtPoint (fireSnd, muzzlePosition.transform.position);
 			Instantiate(muzzleFlash,muzzlePosition.transform.position,transform.rotation);
-			Physics.Raycast (camera.transform.position, camera.transform.forward,out hit, 100);
+			Physics.Raycast (camera.transform.position, camera.transform.forward,out hit, 100,dynamicLayer);
+			//Physics.SphereCast(camera.transform.position,hitRange, camera.transform.forward,out hit2, 100,dynamicLayer);
 
+			//if(hit2.transform!=null)
+			//	hit2.transform.SendMessageUpwards("hit",damage);
 			if(hit.transform==null)return;
 			if(hit.transform.tag=="unstatic")
 				hit.transform.SendMessageUpwards("hit",damage);
@@ -78,6 +83,7 @@ public class FirstPersonController : GameObjectParent {
 	// Update is called once per frame
 	void Update () {
 		Debug.DrawRay(camera.transform.position, camera.transform.forward*100, Color.red);
+
 		if (fireDelay > 0) {
 			fireDelay-=Time.deltaTime;
 		} else {
