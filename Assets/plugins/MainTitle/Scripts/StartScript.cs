@@ -6,7 +6,7 @@ public class StartScript : MonoBehaviour {
 
 	public AudioClip myClip;
 
-	static string bluetoothSuccessMsg = "블루 투스 연결 성공";
+	string bluetoothSuccessMsg = "블루 투스 연결 성공";
 	string bluetoothInfoMsg;
 
 	Text BTInfoText;
@@ -43,8 +43,7 @@ public class StartScript : MonoBehaviour {
 	GameObject DebugLogObj;
 	GameObject AddressObj;
 
-	void Awake(){
-		//bluetoothInfoMsg = BlutoothManager.bluetoothConnection("");
+	void Start(){
 		BTInfoObj = GameObject.Find("BlueToothInfo");
 		BTInfoText = BTInfoObj.GetComponent<Text>();
 
@@ -84,55 +83,28 @@ public class StartScript : MonoBehaviour {
 		
 		StageCanvasObj = GameObject.Find("StageCanvas");
 		StageCanvas = StageCanvasObj.GetComponent<Canvas>();
-		/*
-		if(bluetoothSuccessMsg.Equals(bluetoothInfoMsg)){
-			BlutoothManager.isReady = true;
-			DebugLog.text = bluetoothInfoMsg;
-			BTCanvas.enabled = false;
-			
-		}*/
-		//btConn ();
-		enableF();
-	}/*
-	void Update(){
-		if (BlutoothManager.isReady) {
-			BlutoothManager.getBTData ();
-			DebugLog.text = ForBluetoothState.getData;
-		}
 
-	}*/
-	public void btConn(){
-		bluetoothInfoMsg = BlutoothManager.bluetoothConnection("");
-		if(bluetoothSuccessMsg.Equals(bluetoothInfoMsg)){
-			BlutoothManager.isReady = true;
-			DebugLog.text += bluetoothInfoMsg;
-			BTCanvas.enabled = false;
-			
-		}
+		enableF();
 	}
+	
 	public void startClickEvent(){
 		enableF();
 
-
-		if (!BlutoothManager.isReady) {
-			bluetoothInfoMsg = BlutoothManager.bluetoothConnection("");
-			AddressText.text = "00:18:6B:86:EA:C8과";
-			DebugLog.text = "???";
-			if (bluetoothSuccessMsg.Equals (bluetoothInfoMsg)) {
-				BlutoothManager.isReady = true;
-				DebugLog.text = "?";
-				BTCanvas.enabled = false;
-				
-			} else {
-				DebugLog.text = "??";
-				BTCanvas.enabled = true;
-				BTInfoText.text = "블루투스 정보 : " + bluetoothInfoMsg;
-				
-			}
-		} else {
-			DebugLog.text =  bluetoothInfoMsg;
+		bluetoothInfoMsg = BlutoothManager.bluetoothConnection("");
+		AddressText.text = "00:18:6B:86:EA:C8과";
+		DebugLog.text = "???";
+		if(bluetoothSuccessMsg.Equals(bluetoothInfoMsg)){
+			BlutoothManager.isReady = true;
+			DebugLog.text = "?";
+			BTCanvas.enabled = false;
+			
+		}else{
+			DebugLog.text = "??";
+			BTCanvas.enabled = true;
+			BTInfoText.text = "블루투스 정보 : "+bluetoothInfoMsg;
+			
 		}
-
+		BTInfoText.text = "블루투스 정보 : "+bluetoothInfoMsg;
 		if(BlutoothManager.isReady){
 			MainCanvas.enabled = false;
 			enableF();
