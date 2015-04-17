@@ -2,7 +2,7 @@
 using System.Collections;
 
 [RequireComponent (typeof (CharacterMotor))]
-public class FirstPersonController : GameObjectParent {
+public class EnemyAI : GameObjectParent {
 	public Animator Ani;
 	private Vector3 moveDirection = Vector3.zero;
 	public float speed = 6.0F;
@@ -18,7 +18,7 @@ public class FirstPersonController : GameObjectParent {
 	public LayerMask dynamicLayer;
 	public LayerMask bulletHoleMask;
 	CharacterMotor motor;
-
+	
 	bool forward=false;
 	bool backward=false;
 	bool left=false;
@@ -29,8 +29,8 @@ public class FirstPersonController : GameObjectParent {
 	float fireDelay=0f;
 	CharacterController controller;
 	const float sin45 = 0.7071067811865475F;
-		// Use this for initialization
-
+	// Use this for initialization
+	
 	static ArrayList bulletHoles;
 	void Start () {
 		//bulletHoleMask = ~bulletHoleMask;
@@ -40,13 +40,13 @@ public class FirstPersonController : GameObjectParent {
 		damage = 80;
 		hp = 100;
 	}
-
-
-
+	
+	
+	
 	RaycastHit hit;
 	//RaycastHit hit2;
 	int lastBullet = 0;
-
+	
 	void gunFire(){
 		if (fireDelay == 0) {	//빵하고 쏨.
 			fireDelay += Time.deltaTime*gunSpeed;
@@ -54,10 +54,9 @@ public class FirstPersonController : GameObjectParent {
 			Instantiate(muzzleFlash,muzzlePosition.transform.position,transform.rotation);
 			Physics.Raycast (camera.transform.position, camera.transform.forward,out hit, 100,dynamicLayer);
 			//Physics.SphereCast(camera.transform.position,hitRange, camera.transform.forward,out hit2, 100,dynamicLayer);
-
+			
 			//if(hit2.transform!=null)
 			//	hit2.transform.SendMessageUpwards("hit",damage);
-			Debug.Log(hit.transform.name);
 			if(hit.transform==null)return;
 			if(hit.transform.tag=="unstatic")
 				hit.transform.SendMessageUpwards("hit",damage);
@@ -77,13 +76,12 @@ public class FirstPersonController : GameObjectParent {
 			}
 		}
 	}
-
-
-
+	
+	
+	
 	// Update is called once per frame
 	void Update () {
 		Debug.DrawRay(camera.transform.position, camera.transform.forward*100, Color.red);
-
 		if (fireDelay > 0) {
 			fireDelay-=Time.deltaTime;
 		} else {
@@ -96,71 +94,71 @@ public class FirstPersonController : GameObjectParent {
 		//오리 Y=1.6 Z=0.27
 		//뜀 Y=1.486 Z=0.297
 		switch(getDirection()){
-			case -2 : {//↙
-				motor.inputMoveDirection=(-transform.right-transform.forward)*sin45*0.5f;
-				//controller.Move (transform.right*-1f * speed * Time.deltaTime*sin45*0.5f);
-				//controller.Move (transform.forward *-1f* speed * Time.deltaTime*sin45*0.5f);
-				Ani.SetFloat ("runDirect",-1);
-				isBW=true;
-				break;
-			}case 4 : {//↘
-				motor.inputMoveDirection=(transform.right-transform.forward)*sin45*0.5f;
-				//controller.Move (transform.right * speed * Time.deltaTime*sin45*0.5f);
-				//controller.Move (transform.forward *-1f* speed * Time.deltaTime*sin45*0.5f);
-				Ani.SetFloat ("runDirect",1);
-				isBW=true;
-				break;
-			}case -4 : {//↖
-				motor.inputMoveDirection=(-transform.right+transform.forward)*sin45;
-				//controller.Move (transform.right*-1f * speed * Time.deltaTime*sin45);
-				//controller.Move (transform.forward * speed * Time.deltaTime*sin45);
-				Ani.SetFloat ("runDirect",-1);
-				break;
-			}case 2 : {//↗
-				motor.inputMoveDirection=(transform.right+transform.forward)*sin45;
-				//controller.Move (transform.right * speed * Time.deltaTime*sin45);
-				//controller.Move (transform.forward * speed * Time.deltaTime*sin45);
-				Ani.SetFloat ("runDirect",1);
-
-				break;
-			}case -3 : {//←
-				motor.inputMoveDirection=-transform.right*0.5f;
-				//controller.Move (transform.right*-1f * speed * Time.deltaTime*0.5f);
-				Ani.SetFloat ("runDirect",-1);
-				break;
-			}case 3 : {//→
-				motor.inputMoveDirection=transform.right*0.5f;
-				//controller.Move (transform.right * speed * Time.deltaTime*0.5f);
-				Ani.SetFloat ("runDirect",1);
-				break;
-			}case 1 : {//↓
-				motor.inputMoveDirection=-transform.forward*0.5f;
-				//controller.Move (transform.forward *-1f* speed *0.5f* Time.deltaTime);
-				isBW=true;
-				break;
-			}case -1 : {//↑
-				motor.inputMoveDirection=transform.forward;
-				//controller.Move (transform.forward * speed * Time.deltaTime);
-				break;
-			}
+		case -2 : {//↙
+			motor.inputMoveDirection=(-transform.right-transform.forward)*sin45*0.5f;
+			//controller.Move (transform.right*-1f * speed * Time.deltaTime*sin45*0.5f);
+			//controller.Move (transform.forward *-1f* speed * Time.deltaTime*sin45*0.5f);
+			Ani.SetFloat ("runDirect",-1);
+			isBW=true;
+			break;
+		}case 4 : {//↘
+			motor.inputMoveDirection=(transform.right-transform.forward)*sin45*0.5f;
+			//controller.Move (transform.right * speed * Time.deltaTime*sin45*0.5f);
+			//controller.Move (transform.forward *-1f* speed * Time.deltaTime*sin45*0.5f);
+			Ani.SetFloat ("runDirect",1);
+			isBW=true;
+			break;
+		}case -4 : {//↖
+			motor.inputMoveDirection=(-transform.right+transform.forward)*sin45;
+			//controller.Move (transform.right*-1f * speed * Time.deltaTime*sin45);
+			//controller.Move (transform.forward * speed * Time.deltaTime*sin45);
+			Ani.SetFloat ("runDirect",-1);
+			break;
+		}case 2 : {//↗
+			motor.inputMoveDirection=(transform.right+transform.forward)*sin45;
+			//controller.Move (transform.right * speed * Time.deltaTime*sin45);
+			//controller.Move (transform.forward * speed * Time.deltaTime*sin45);
+			Ani.SetFloat ("runDirect",1);
+			
+			break;
+		}case -3 : {//←
+			motor.inputMoveDirection=-transform.right*0.5f;
+			//controller.Move (transform.right*-1f * speed * Time.deltaTime*0.5f);
+			Ani.SetFloat ("runDirect",-1);
+			break;
+		}case 3 : {//→
+			motor.inputMoveDirection=transform.right*0.5f;
+			//controller.Move (transform.right * speed * Time.deltaTime*0.5f);
+			Ani.SetFloat ("runDirect",1);
+			break;
+		}case 1 : {//↓
+			motor.inputMoveDirection=-transform.forward*0.5f;
+			//controller.Move (transform.forward *-1f* speed *0.5f* Time.deltaTime);
+			isBW=true;
+			break;
+		}case -1 : {//↑
+			motor.inputMoveDirection=transform.forward;
+			//controller.Move (transform.forward * speed * Time.deltaTime);
+			break;
 		}
-
+		}
+		
 		if (!isBW) {
 			Ani.SetFloat ("speed", controller.velocity.magnitude);
-
+			
 		} else {
 			Ani.SetFloat ("speed", -controller.velocity.magnitude);
 		}
-
+		
 		Vector3 degree = camera.transform.localRotation.eulerAngles;
-
+		
 		if (degree.x > 0 && degree.x <= 90) {
 			Ani.SetFloat ("lookDegree",-degree.x);
 		}
 		if (degree.x < 360 && degree.x >= 270) {
 			Ani.SetFloat ("lookDegree",360-degree.x);
 		}
-
+		
 	}
 	int getDirection(){
 		int temp = 0;
@@ -185,5 +183,5 @@ public class FirstPersonController : GameObjectParent {
 	public void Fire(bool val)	{
 		shooting=val;
 	}
-
+	
 }

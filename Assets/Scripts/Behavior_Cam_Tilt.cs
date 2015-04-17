@@ -7,8 +7,8 @@ public class Behavior_Cam_Tilt : MonoBehaviour {
 	public const float lowPassFilterFactor = 0.8f; //가속도계 노이즈 필터 1~0
 	public float maxLookDown=80f;
 	public float maxLookUp=80f;
-	GameObject player;
-	GameObject camPos;
+	public GameObject player;
+	public GameObject camPos;
 	Vector3 thisLocPos;
 
 	void Start() {
@@ -16,8 +16,6 @@ public class Behavior_Cam_Tilt : MonoBehaviour {
 		Screen.sleepTimeout=SleepTimeout.NeverSleep;//화면 꺼짐 방지
 		Input.gyro.enabled = true; 
 		//camera.nearClipPlane = 0.0001f;
-		player = GameObject.Find ("First Person Controller");
-		camPos = GameObject.Find ("CamPosition");
 	} 
 	void Update() {
 		/* 부모객체 바라보는 좌우 y축 방향 일치 */
