@@ -9,10 +9,9 @@ public class _OSDController : MonoBehaviour {
 	private bool isRightDown = false;
 	private bool isFireDown=false;
 	private bool isJumpDown=false;
-	GameObject player;
+	public GameObject player;
 	CharacterMotor motor;
 	void Start(){
-		player=GameObject.Find("First Person Controller");
 		motor=player.GetComponent<CharacterMotor>();
 	}
 	public void onForwardDown(){

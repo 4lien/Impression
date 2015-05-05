@@ -37,11 +37,62 @@ public class EnemyAI : GameObjectParent {
 		controller = GetComponent<CharacterController>();
 		bulletHoles=new ArrayList();
 		motor=this.GetComponent<CharacterMotor>();
-		damage = 80;
-		hp = 100;
+
+		nav = GetComponent < NavMeshAgent> ();
+		col = GetComponent<SphereCollider> ();
 	}
 	
-	
+
+
+
+	/* AI구현 부분 시작 */
+	//private EnemySight enemySight;
+	private NavMeshAgent nav;
+	private GameObject player;
+	//private LastPlayerSighting lastPlayerSighting;
+	private float chaseTimer;
+	private float patrolTimer;
+	private int wayPointIndex;
+	private SphereCollider col;
+	private float fieldOfViewAngle=110f;
+
+
+	void wake(){
+		player = GameObject.FindGameObjectWithTag("Player");
+
+	}
+
+	void OnTriggerStay(Collider other) {
+		if (other.transform == transform)	//나자신일때 생략
+			return;
+		Vector3 direction = other.transform.position - transform.position;
+		float angle = Vector3.Angle (direction, transform.forward);
+		if (angle < fieldOfViewAngle * 0.5f) {	//시야 범위 안에 있을때
+			RaycastHit hit;
+			if(Physics.Raycast(camera.transform.position,direction.normalized,out hit,col.radius)){	//보이면
+				if(hit.collider.gameObject==other.gameObject){
+					Quaternion targetRotation = Quaternion.LookRotation(new Vector3(direction.x+Random.Range(-3f,3f),0,direction.z)); //위아래 제외
+					transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, 5f * Time.deltaTime);	
+					targetRotation = Quaternion.LookRotation(direction);	//위아래 빼고 몸통만
+					Vector3 targetPos=other.transform.position;
+					targetPos.y+=1.4f+Random.Range(-0.1f,0.1f); //플레이어 크기가 2f 즉 1.4부분을 조준
+					camera.transform.LookAt(targetPos);	//타겟을 보게 한다음에
+					Vector3 temp=camera.transform.localEulerAngles;
+					temp.y=0;	//y랑 z를 0으로
+					temp.z=0;
+					camera.transform.localEulerAngles=temp;	//y랑 z만 0으로
+					gunFire();
+				}
+			}
+		}
+	}
+
+	/* AI구현 부분 끝 */
+
+
+
+
+
 	
 	RaycastHit hit;
 	//RaycastHit hit2;
@@ -52,28 +103,8 @@ public class EnemyAI : GameObjectParent {
 			fireDelay += Time.deltaTime*gunSpeed;
 			AudioSource.PlayClipAtPoint (fireSnd, muzzlePosition.transform.position);
 			Instantiate(muzzleFlash,muzzlePosition.transform.position,transform.rotation);
-			Physics.Raycast (camera.transform.position, camera.transform.forward,out hit, 100,dynamicLayer);
-			//Physics.SphereCast(camera.transform.position,hitRange, camera.transform.forward,out hit2, 100,dynamicLayer);
-			
-			//if(hit2.transform!=null)
-			//	hit2.transform.SendMessageUpwards("hit",damage);
-			if(hit.transform==null)return;
-			if(hit.transform.tag=="unstatic")
+			if(Physics.Raycast(camera.transform.position,camera.transform.forward,out hit,col.radius))
 				hit.transform.SendMessageUpwards("hit",damage);
-			/* 탄흔 그리기 */
-			if(hit.transform.tag!="unstatic"&&hit.transform.tag!="Player"){
-				if(lastBullet>=arrayLength)lastBullet=0;	//끝까지 갔으면 처음으로
-				if(bulletHoles.Count<arrayLength){	//처음엔 생성만
-					bulletHoles.Insert(lastBullet,(GameObject)Instantiate(bulletHole,hit.point+(hit.normal*0.01f),Quaternion.LookRotation(hit.normal)));
-					lastBullet++;
-				}else{	//생성을 다 했으면 삭제하면서 돌기시작
-					Destroy((GameObject)bulletHoles[lastBullet]);	//오브젝트 삭제
-					bulletHoles.RemoveAt(lastBullet);	//주소 삭제
-					//생성
-					bulletHoles.Insert(lastBullet,(GameObject)Instantiate(bulletHole,hit.point+(hit.normal*0.01f),Quaternion.LookRotation(hit.normal)));
-					lastBullet++;
-				}
-			}
 		}
 	}
 	
@@ -87,7 +118,7 @@ public class EnemyAI : GameObjectParent {
 		} else {
 			fireDelay=0;
 		}
-		if(shooting)gunFire();
+
 		bool isBW=false;
 		float direct = 0f;
 		Ani.SetFloat ("runDirect",0);

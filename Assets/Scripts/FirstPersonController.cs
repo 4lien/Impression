@@ -52,12 +52,11 @@ public class FirstPersonController : GameObjectParent {
 			fireDelay += Time.deltaTime*gunSpeed;
 			AudioSource.PlayClipAtPoint (fireSnd, muzzlePosition.transform.position);
 			Instantiate(muzzleFlash,muzzlePosition.transform.position,transform.rotation);
-			Physics.Raycast (camera.transform.position, camera.transform.forward,out hit, 100,dynamicLayer);
+			Physics.Raycast (camera.transform.position, camera.transform.forward,out hit, 100);
 			//Physics.SphereCast(camera.transform.position,hitRange, camera.transform.forward,out hit2, 100,dynamicLayer);
 
 			//if(hit2.transform!=null)
 			//	hit2.transform.SendMessageUpwards("hit",damage);
-			Debug.Log(hit.transform.name);
 			if(hit.transform==null)return;
 			if(hit.transform.tag=="unstatic")
 				hit.transform.SendMessageUpwards("hit",damage);
