@@ -92,8 +92,6 @@ public class FirstPersonController : GameObjectParent {
 		bool isBW=false;
 		float direct = 0f;
 		Ani.SetFloat ("runDirect",0);
-		//오리 Y=1.6 Z=0.27
-		//뜀 Y=1.486 Z=0.297
 		switch(getDirection()){
 			case -2 : {//↙
 				motor.inputMoveDirection=(-transform.right-transform.forward)*sin45*0.5f;

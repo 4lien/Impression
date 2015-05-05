@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-[RequireComponent (typeof (CharacterMotor))]
+//[RequireComponent (typeof (CharacterMotor))]
 public class EnemyAI : GameObjectParent {
 	public Animator Ani;
 	private Vector3 moveDirection = Vector3.zero;
@@ -17,7 +17,7 @@ public class EnemyAI : GameObjectParent {
 	public GameObject bulletHole;
 	public LayerMask dynamicLayer;
 	public LayerMask bulletHoleMask;
-	CharacterMotor motor;
+	//CharacterMotor motor;
 	
 	bool forward=false;
 	bool backward=false;
@@ -36,8 +36,8 @@ public class EnemyAI : GameObjectParent {
 		//bulletHoleMask = ~bulletHoleMask;
 		controller = GetComponent<CharacterController>();
 		bulletHoles=new ArrayList();
-		motor=this.GetComponent<CharacterMotor>();
-
+//		motor=this.GetComponent<CharacterMotor>();
+		player = GameObject.FindGameObjectWithTag("Player");
 		nav = GetComponent < NavMeshAgent> ();
 		col = GetComponent<SphereCollider> ();
 	}
@@ -55,16 +55,12 @@ public class EnemyAI : GameObjectParent {
 	private int wayPointIndex;
 	private SphereCollider col;
 	private float fieldOfViewAngle=110f;
-
-
-	void wake(){
-		player = GameObject.FindGameObjectWithTag("Player");
-
-	}
-
+	public GameObject moveTarget;
+	bool playerInSight=false;
 	void OnTriggerStay(Collider other) {
-		if (other.transform == transform)	//나자신일때 생략
+		if(player.transform!=other.transform)
 			return;
+		nav.Stop ();
 		Vector3 direction = other.transform.position - transform.position;
 		float angle = Vector3.Angle (direction, transform.forward);
 		if (angle < fieldOfViewAngle * 0.5f) {	//시야 범위 안에 있을때
@@ -95,7 +91,6 @@ public class EnemyAI : GameObjectParent {
 
 	
 	RaycastHit hit;
-	//RaycastHit hit2;
 	int lastBullet = 0;
 	
 	void gunFire(){
@@ -118,6 +113,18 @@ public class EnemyAI : GameObjectParent {
 		} else {
 			fireDelay=0;
 		}
+		if (playerInSight) {
+			nav.Stop ();
+		} else {
+			nav.SetDestination (moveTarget.transform.position);
+		}
+
+
+
+		Ani.SetFloat ("speed", nav.velocity.magnitude);
+
+
+			/*
 
 		bool isBW=false;
 		float direct = 0f;
@@ -188,7 +195,7 @@ public class EnemyAI : GameObjectParent {
 		}
 		if (degree.x < 360 && degree.x >= 270) {
 			Ani.SetFloat ("lookDegree",360-degree.x);
-		}
+		}*/
 		
 	}
 	int getDirection(){
