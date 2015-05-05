@@ -17,6 +17,7 @@ public class EnemyAI : GameObjectParent {
 	public GameObject bulletHole;
 	public LayerMask dynamicLayer;
 	public LayerMask bulletHoleMask;
+	public Transform[] wayPoints;
 	//CharacterMotor motor;
 	
 	bool forward=false;
@@ -55,7 +56,9 @@ public class EnemyAI : GameObjectParent {
 	private int wayPointIndex;
 	private SphereCollider col;
 	private float fieldOfViewAngle=110f;
-	public GameObject moveTarget;
+	private int wpIndex=0;
+	private float waitTimer=0;
+	public float waitTime=0.0001f;
 	bool playerInSight=false;
 	void OnTriggerStay(Collider other) {
 		if(player.transform!=other.transform)
@@ -104,23 +107,31 @@ public class EnemyAI : GameObjectParent {
 	}
 	
 	
-	
+	void temp(){
+
+	}
 	// Update is called once per frame
 	void Update () {
+
 		Debug.DrawRay(camera.transform.position, camera.transform.forward*100, Color.red);
 		if (fireDelay > 0) {
 			fireDelay-=Time.deltaTime;
 		} else {
 			fireDelay=0;
 		}
-		if (playerInSight) {
-			nav.Stop ();
-		} else {
-			nav.SetDestination (moveTarget.transform.position);
+
+
+		nav.SetDestination (wayPoints [wpIndex].position);
+		if (nav.remainingDistance < nav.stoppingDistance) {	//도착하였으면
+			waitTimer+=Time.deltaTime;	//기다림
+			if(waitTimer>waitTime){	//다 기다렸으면
+				waitTimer=0f;
+				wpIndex++;
+				wpIndex=wpIndex%wayPoints.Length;	//인덱스 증가
+				nav.SetDestination (wayPoints [wpIndex].position);
+			}
+
 		}
-
-
-
 		Ani.SetFloat ("speed", nav.velocity.magnitude);
 
 
