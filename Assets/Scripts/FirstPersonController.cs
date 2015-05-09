@@ -10,13 +10,15 @@ public class FirstPersonController : GameObjectParent {
 	public float gravity = 20.0F;
 	public float hitRange= 5F;
 	public AudioClip fireSnd;
+	public AudioClip hitSnd;
+	public AudioClip jumpSnd;
 	public GameObject muzzleFlash;
+	public GameObject hitEffect;
 	public GameObject gun;
 	public GameObject muzzlePosition;
 	public GameObject camera;
 	public GameObject bulletHole;
-	public LayerMask dynamicLayer;
-	public LayerMask bulletHoleMask;
+	public LayerMask ignoreRaycast;
 	CharacterMotor motor;
 
 	bool forward=false;
@@ -24,6 +26,7 @@ public class FirstPersonController : GameObjectParent {
 	bool left=false;
 	bool right=false;
 	bool shooting=false;
+	bool jump=false;
 	int arrayLength=30;
 	const float gunSpeed = 8f;
 	float fireDelay=0f;
@@ -52,14 +55,17 @@ public class FirstPersonController : GameObjectParent {
 			fireDelay += Time.deltaTime*gunSpeed;
 			AudioSource.PlayClipAtPoint (fireSnd, muzzlePosition.transform.position);
 			Instantiate(muzzleFlash,muzzlePosition.transform.position,transform.rotation);
-			Physics.Raycast (camera.transform.position, camera.transform.forward,out hit, 100);
+			Physics.Raycast (camera.transform.position, camera.transform.forward,out hit, 100,~ignoreRaycast);
 			//Physics.SphereCast(camera.transform.position,hitRange, camera.transform.forward,out hit2, 100,dynamicLayer);
 
 			//if(hit2.transform!=null)
 			//	hit2.transform.SendMessageUpwards("hit",damage);
 			if(hit.transform==null)return;
-			if(hit.transform.tag=="unstatic")
+			if(hit.transform.tag=="unstatic"){
 				hit.transform.SendMessageUpwards("hit",damage);
+				Instantiate(hitEffect,hit.point,transform.rotation);
+				AudioSource.PlayClipAtPoint (hitSnd,transform.position);
+			}
 			/* 탄흔 그리기 */
 			if(hit.transform.tag!="unstatic"&&hit.transform.tag!="Player"){
 				if(lastBullet>=arrayLength)lastBullet=0;	//끝까지 갔으면 처음으로
@@ -157,7 +163,8 @@ public class FirstPersonController : GameObjectParent {
 		if (degree.x < 360 && degree.x >= 270) {
 			Ani.SetFloat ("lookDegree",360-degree.x);
 		}
-
+		if (motor.inputJump)
+			motor.inputJump = false;
 	}
 	int getDirection(){
 		int temp = 0;
@@ -181,6 +188,17 @@ public class FirstPersonController : GameObjectParent {
 	}
 	public void Fire(bool val)	{
 		shooting=val;
+	}
+	public void Jump(bool val){
+		if (val)	//다운
+			motor.inputJump = false;
+		if(jump&&!val){	//업
+			if(Physics.Raycast(transform.position, -Vector3.up,0.01f)){	//땅에 붙어있을때만
+				AudioSource.PlayClipAtPoint(jumpSnd,transform.position);	//기합
+			}
+			motor.inputJump = true;
+		}
+		jump = val;
 	}
 
 }

@@ -13,10 +13,10 @@ public class EnemyAI : GameObjectParent {
 	public GameObject muzzleFlash;
 	public GameObject gun;
 	public GameObject muzzlePosition;
+	public GameObject hitEffect;
 	public GameObject camera;
 	public GameObject bulletHole;
-	public LayerMask dynamicLayer;
-	public LayerMask bulletHoleMask;
+	public LayerMask ignoreRaycast;
 	public Transform[] wayPoints;
 	//CharacterMotor motor;
 	
@@ -63,12 +63,12 @@ public class EnemyAI : GameObjectParent {
 	void OnTriggerStay(Collider other) {
 		if(player.transform!=other.transform)
 			return;
-		nav.Stop ();
 		Vector3 direction = other.transform.position - transform.position;
 		float angle = Vector3.Angle (direction, transform.forward);
 		if (angle < fieldOfViewAngle * 0.5f) {	//시야 범위 안에 있을때
+			nav.Stop ();
 			RaycastHit hit;
-			if(Physics.Raycast(camera.transform.position,direction.normalized,out hit,col.radius)){	//보이면
+			if(Physics.Raycast(camera.transform.position,direction.normalized,out hit,col.radius,~ignoreRaycast)){	//보이면
 				if(hit.collider.gameObject==other.gameObject){
 					Quaternion targetRotation = Quaternion.LookRotation(new Vector3(direction.x+Random.Range(-3f,3f),0,direction.z)); //위아래 제외
 					transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, 5f * Time.deltaTime);	
@@ -101,8 +101,10 @@ public class EnemyAI : GameObjectParent {
 			fireDelay += Time.deltaTime*gunSpeed;
 			AudioSource.PlayClipAtPoint (fireSnd, muzzlePosition.transform.position);
 			Instantiate(muzzleFlash,muzzlePosition.transform.position,transform.rotation);
-			if(Physics.Raycast(camera.transform.position,camera.transform.forward,out hit,col.radius))
+			if(Physics.Raycast(camera.transform.position,camera.transform.forward,out hit,col.radius)){
 				hit.transform.SendMessageUpwards("hit",damage);
+				Instantiate(hitEffect,hit.point,transform.rotation);
+			}
 		}
 	}
 	

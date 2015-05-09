@@ -10,10 +10,6 @@ public class _OSDController : MonoBehaviour {
 	private bool isFireDown=false;
 	private bool isJumpDown=false;
 	public GameObject player;
-	CharacterMotor motor;
-	void Start(){
-		motor=player.GetComponent<CharacterMotor>();
-	}
 	public void onForwardDown(){
 		isForDown = true;
 	}
@@ -56,7 +52,6 @@ public class _OSDController : MonoBehaviour {
 		player.SendMessage ("MoveLeft",isLeftDown);
 		player.SendMessage ("MoveRight",isRightDown);
 		player.SendMessage ("Fire", isFireDown);
-		motor.inputJump = isJumpDown;
-		
+		player.SendMessage ("Jump",isJumpDown);
 	}
 }
