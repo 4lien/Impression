@@ -4,13 +4,14 @@ using System.Collections;
 [RequireComponent (typeof (CharacterMotor))]
 public class FirstPersonController : GameObjectParent {
 	public Animator Ani;
-	private Vector3 moveDirection = Vector3.zero;
+	private Vector3 moveDirectionhitRayVector3.zero;
 	public float speed = 6.0F;
 	public float jumpSpeed = 8.0F;
 	public float gravity = 20.0F;
 	public float hitRange= 5F;
 	public AudioClip fireSnd;
 	public AudioClip hitSnd;
+	public AudioClip hitSnd2;
 	public AudioClip jumpSnd;
 	public GameObject muzzleFlash;
 	public GameObject hitEffect;
@@ -20,6 +21,7 @@ public class FirstPersonController : GameObjectParent {
 	public GameObject bulletHole;
 	public LayerMask ignoreRaycast;
 	CharacterMotor motor;
+	CharacterController con;
 
 	bool forward=false;
 	bool backward=false;
@@ -42,11 +44,12 @@ public class FirstPersonController : GameObjectParent {
 		motor=this.GetComponent<CharacterMotor>();
 		damage = 80;
 		hp = 100;
+		con = GetComponent < CharacterController >();
 	}
 
 
 
-	RaycastHit hit;
+	RaycastHit hitRay;
 	//RaycastHit hit2;
 	int lastBullet = 0;
 
@@ -55,28 +58,28 @@ public class FirstPersonController : GameObjectParent {
 			fireDelay += Time.deltaTime*gunSpeed;
 			AudioSource.PlayClipAtPoint (fireSnd, muzzlePosition.transform.position);
 			Instantiate(muzzleFlash,muzzlePosition.transform.position,transform.rotation);
-			Physics.Raycast (camera.transform.position, camera.transform.forward,out hit, 100,~ignoreRaycast);
+			Physics.Raycast (camera.transform.position, camera.transform.forward,out hitRay, 100,~ignoreRaycast);
 			//Physics.SphereCast(camera.transform.position,hitRange, camera.transform.forward,out hit2, 100,dynamicLayer);
 
 			//if(hit2.transform!=null)
 			//	hit2.transform.SendMessageUpwards("hit",damage);
-			if(hit.transform==null)return;
-			if(hit.transform.tag=="unstatic"){
-				hit.transform.SendMessageUpwards("hit",damage);
-				Instantiate(hitEffect,hit.point,transform.rotation);
+			if(hitRay.transform==null)return;
+			if(hitRay.transform.tag=="unstatic"){
+				hitRay.transform.SendMessageUpwards("hit",damage);
+				Instantiate(hitEffect,hitRay.point,transform.rotation);
 				AudioSource.PlayClipAtPoint (hitSnd,transform.position);
 			}
 			/* 탄흔 그리기 */
-			if(hit.transform.tag!="unstatic"&&hit.transform.tag!="Player"){
+			if(hitRay.transform.tag!="unstatic"&&hitRay.transform.tag!="Player"){
 				if(lastBullet>=arrayLength)lastBullet=0;	//끝까지 갔으면 처음으로
 				if(bulletHoles.Count<arrayLength){	//처음엔 생성만
-					bulletHoles.Insert(lastBullet,(GameObject)Instantiate(bulletHole,hit.point+(hit.normal*0.01f),Quaternion.LookRotation(hit.normal)));
+					bulletHoles.Insert(lastBullet,(GameObject)Instantiate(bulletHole,hitRay.point+(hitRay.normal*0.01f),Quaternion.LookRotation(hitRay.normal)));
 					lastBullet++;
 				}else{	//생성을 다 했으면 삭제하면서 돌기시작
 					Destroy((GameObject)bulletHoles[lastBullet]);	//오브젝트 삭제
 					bulletHoles.RemoveAt(lastBullet);	//주소 삭제
 					//생성
-					bulletHoles.Insert(lastBullet,(GameObject)Instantiate(bulletHole,hit.point+(hit.normal*0.01f),Quaternion.LookRotation(hit.normal)));
+					bulletHoles.Insert(lastBullet,(GameObject)Instantiate(bulletHole,hitRay.point+(hitRay.normal*0.01f),Quaternion.LookRotation(hitRay.normal)));
 					lastBullet++;
 				}
 			}
@@ -163,8 +166,24 @@ public class FirstPersonController : GameObjectParent {
 		if (degree.x < 360 && degree.x >= 270) {
 			Ani.SetFloat ("lookDegree",360-degree.x);
 		}
-		if (motor.inputJump)
-			motor.inputJump = false;
+
+	}
+	public void hit(float Damage){
+		hp -= Damage;
+		AudioSource.PlayClipAtPoint(hitSnd2,transform.position,0.2f);
+		if (hp < 0)
+			dead ();
+	}
+	void dead(){
+		Ani.SetBool ("dead",true);
+		StartCoroutine (destroy());
+	}
+
+	IEnumerator destroy(){
+		yield return new WaitForSeconds(2);
+		con.stepOffset = 0f;
+		con.enabled = false;
+		motor.enabled = false;
 	}
 	int getDirection(){
 		int temp = 0;
@@ -200,5 +219,6 @@ public class FirstPersonController : GameObjectParent {
 		}
 		jump = val;
 	}
+
 
 }

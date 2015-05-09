@@ -18,6 +18,7 @@ public class EnemyAI : GameObjectParent {
 	public GameObject bulletHole;
 	public LayerMask ignoreRaycast;
 	public Transform[] wayPoints;
+	CapsuleCollider colider;
 	//CharacterMotor motor;
 	
 	bool forward=false;
@@ -41,6 +42,8 @@ public class EnemyAI : GameObjectParent {
 		player = GameObject.FindGameObjectWithTag("Player");
 		nav = GetComponent < NavMeshAgent> ();
 		col = GetComponent<SphereCollider> ();
+		colider = GetComponent<CapsuleCollider> ();
+		hp = 100;
 	}
 	
 
@@ -61,7 +64,7 @@ public class EnemyAI : GameObjectParent {
 	public float waitTime=0.0001f;
 	bool playerInSight=false;
 	void OnTriggerStay(Collider other) {
-		if(player.transform!=other.transform)
+		if(player.transform!=other.transform||hp<=0)
 			return;
 		Vector3 direction = other.transform.position - transform.position;
 		float angle = Vector3.Angle (direction, transform.forward);
@@ -85,7 +88,24 @@ public class EnemyAI : GameObjectParent {
 			}
 		}
 	}
-
+	public void hit(float Damage){
+		hp -= Damage;
+		if (hp < 0)
+			dead ();
+	}
+	void dead(){
+		Ani.SetBool ("dead",true);
+		nav.enabled = false;
+		col.enabled = false;
+		StartCoroutine (destroy());
+	}
+	
+	IEnumerator destroy(){
+		yield return new WaitForSeconds(2);
+		transform.rigidbody.useGravity = false;
+		colider.enabled = false;
+		this.enabled = false;
+	}
 	/* AI구현 부분 끝 */
 
 
@@ -93,7 +113,7 @@ public class EnemyAI : GameObjectParent {
 
 
 	
-	RaycastHit hit;
+	RaycastHit hitRay;
 	int lastBullet = 0;
 	
 	void gunFire(){
@@ -101,27 +121,23 @@ public class EnemyAI : GameObjectParent {
 			fireDelay += Time.deltaTime*gunSpeed;
 			AudioSource.PlayClipAtPoint (fireSnd, muzzlePosition.transform.position);
 			Instantiate(muzzleFlash,muzzlePosition.transform.position,transform.rotation);
-			if(Physics.Raycast(camera.transform.position,camera.transform.forward,out hit,col.radius)){
-				hit.transform.SendMessageUpwards("hit",damage);
-				Instantiate(hitEffect,hit.point,transform.rotation);
+			if(Physics.Raycast(camera.transform.position,camera.transform.forward,out hitRay,col.radius)){
+				hitRay.transform.SendMessageUpwards("hit",damage);
+				Instantiate(hitEffect,hitRay.point,transform.rotation);
 			}
 		}
 	}
 	
-	
-	void temp(){
-
-	}
 	// Update is called once per frame
 	void Update () {
-
+		if (hp <= 0)
+			return;
 		Debug.DrawRay(camera.transform.position, camera.transform.forward*100, Color.red);
 		if (fireDelay > 0) {
 			fireDelay-=Time.deltaTime;
 		} else {
 			fireDelay=0;
 		}
-
 
 		nav.SetDestination (wayPoints [wpIndex].position);
 		if (nav.remainingDistance < nav.stoppingDistance) {	//도착하였으면
@@ -136,80 +152,6 @@ public class EnemyAI : GameObjectParent {
 		}
 		Ani.SetFloat ("speed", nav.velocity.magnitude);
 
-
-			/*
-
-		bool isBW=false;
-		float direct = 0f;
-		Ani.SetFloat ("runDirect",0);
-		//오리 Y=1.6 Z=0.27
-		//뜀 Y=1.486 Z=0.297
-		switch(getDirection()){
-		case -2 : {//↙
-			motor.inputMoveDirection=(-transform.right-transform.forward)*sin45*0.5f;
-			//controller.Move (transform.right*-1f * speed * Time.deltaTime*sin45*0.5f);
-			//controller.Move (transform.forward *-1f* speed * Time.deltaTime*sin45*0.5f);
-			Ani.SetFloat ("runDirect",-1);
-			isBW=true;
-			break;
-		}case 4 : {//↘
-			motor.inputMoveDirection=(transform.right-transform.forward)*sin45*0.5f;
-			//controller.Move (transform.right * speed * Time.deltaTime*sin45*0.5f);
-			//controller.Move (transform.forward *-1f* speed * Time.deltaTime*sin45*0.5f);
-			Ani.SetFloat ("runDirect",1);
-			isBW=true;
-			break;
-		}case -4 : {//↖
-			motor.inputMoveDirection=(-transform.right+transform.forward)*sin45;
-			//controller.Move (transform.right*-1f * speed * Time.deltaTime*sin45);
-			//controller.Move (transform.forward * speed * Time.deltaTime*sin45);
-			Ani.SetFloat ("runDirect",-1);
-			break;
-		}case 2 : {//↗
-			motor.inputMoveDirection=(transform.right+transform.forward)*sin45;
-			//controller.Move (transform.right * speed * Time.deltaTime*sin45);
-			//controller.Move (transform.forward * speed * Time.deltaTime*sin45);
-			Ani.SetFloat ("runDirect",1);
-			
-			break;
-		}case -3 : {//←
-			motor.inputMoveDirection=-transform.right*0.5f;
-			//controller.Move (transform.right*-1f * speed * Time.deltaTime*0.5f);
-			Ani.SetFloat ("runDirect",-1);
-			break;
-		}case 3 : {//→
-			motor.inputMoveDirection=transform.right*0.5f;
-			//controller.Move (transform.right * speed * Time.deltaTime*0.5f);
-			Ani.SetFloat ("runDirect",1);
-			break;
-		}case 1 : {//↓
-			motor.inputMoveDirection=-transform.forward*0.5f;
-			//controller.Move (transform.forward *-1f* speed *0.5f* Time.deltaTime);
-			isBW=true;
-			break;
-		}case -1 : {//↑
-			motor.inputMoveDirection=transform.forward;
-			//controller.Move (transform.forward * speed * Time.deltaTime);
-			break;
-		}
-		}
-		
-		if (!isBW) {
-			Ani.SetFloat ("speed", controller.velocity.magnitude);
-			
-		} else {
-			Ani.SetFloat ("speed", -controller.velocity.magnitude);
-		}
-		
-		Vector3 degree = camera.transform.localRotation.eulerAngles;
-		
-		if (degree.x > 0 && degree.x <= 90) {
-			Ani.SetFloat ("lookDegree",-degree.x);
-		}
-		if (degree.x < 360 && degree.x >= 270) {
-			Ani.SetFloat ("lookDegree",360-degree.x);
-		}*/
-		
 	}
 	int getDirection(){
 		int temp = 0;
