@@ -18,6 +18,7 @@ public class FirstPersonController : GameObjectParent {
 	public GameObject gun;
 	public GameObject muzzlePosition;
 	public GameObject camera;
+	public GameObject camPos;
 	public GameObject bulletHole;
 	public LayerMask ignoreRaycast;
 	CharacterMotor motor;
@@ -90,6 +91,8 @@ public class FirstPersonController : GameObjectParent {
 
 	// Update is called once per frame
 	void Update () {
+		if (hp <= 0)
+			return;
 		Debug.DrawRay(camera.transform.position, camera.transform.forward*100, Color.red);
 
 		if (fireDelay > 0) {
@@ -180,10 +183,11 @@ public class FirstPersonController : GameObjectParent {
 	}
 
 	IEnumerator destroy(){
-		yield return new WaitForSeconds(2);
+		yield return new WaitForSeconds(1.5f);
 		con.stepOffset = 0f;
 		con.enabled = false;
 		motor.enabled = false;
+		camera.transform.parent = camPos.transform;	//카메라 이동
 	}
 	int getDirection(){
 		int temp = 0;
@@ -209,6 +213,8 @@ public class FirstPersonController : GameObjectParent {
 		shooting=val;
 	}
 	public void Jump(bool val){
+		if (hp <= 0)
+			return;
 		if (val)	//다운
 			motor.inputJump = false;
 		if(jump&&!val){	//업

@@ -101,7 +101,7 @@ public class EnemyAI : GameObjectParent {
 	}
 	
 	IEnumerator destroy(){
-		yield return new WaitForSeconds(2);
+		yield return new WaitForSeconds(1.5f);
 		transform.rigidbody.useGravity = false;
 		colider.enabled = false;
 		this.enabled = false;

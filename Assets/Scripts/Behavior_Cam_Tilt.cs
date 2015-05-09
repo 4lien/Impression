@@ -7,7 +7,6 @@ public class Behavior_Cam_Tilt : MonoBehaviour {
 	public const float lowPassFilterFactor = 0.8f; //가속도계 노이즈 필터 1~0
 	public float maxLookDown=80f;
 	public float maxLookUp=80f;
-	public GameObject player;
 	public GameObject camPos;
 	Vector3 thisLocPos;
 
@@ -19,9 +18,9 @@ public class Behavior_Cam_Tilt : MonoBehaviour {
 	} 
 	void Update() {
 		/* 부모객체 바라보는 좌우 y축 방향 일치 */
-		Vector3 v = player.transform.eulerAngles;
+		Vector3 v = transform.parent.eulerAngles;
 		Vector3 v2 = transform.eulerAngles;
-		player.transform.eulerAngles = new Vector3 (v.x,v2.y,v.z);
+		transform.parent.eulerAngles = new Vector3 (v.x,v2.y,v.z);
 		transform.eulerAngles = v2;
 
 
