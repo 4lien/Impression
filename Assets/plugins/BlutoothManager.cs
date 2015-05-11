@@ -2,17 +2,17 @@
 using System.Collections;
 
 public static class BlutoothManager{
-	
-	#if UNITY_ANDROID
+
 
 	public static AndroidJavaObject	_AndroidpluginObj = null;
 	public static bool	isReady = false;
 	// Use this for initialization/*
+	/*
 	public static void Awake () {
 		AndroidJNI.AttachCurrentThread();
 		_Init();
 	}
-	
+	*/
 	public static void Destroy()
 	{
 		if( _AndroidpluginObj != null )
@@ -23,7 +23,7 @@ public static class BlutoothManager{
 	
 	public static int _Init()
 	{
-		AndroidJavaClass 		_androdiJC = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
+		AndroidJavaClass _androdiJC = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
 		
 		if( _androdiJC != null )
 		{
@@ -43,10 +43,12 @@ public static class BlutoothManager{
 	
 	public static void getBTData() //CallIntValue
 	{
+		Debug.Log("Debug Message");
 		if( _AndroidpluginObj != null )
 		{
 
 			ForBluetoothState.getData = _AndroidpluginObj.Call<string>("bluetoothDataRead").Trim();
+
 			/*
 			if(!"".Equals(strReturnValue)){
 				ForBluetoothState.getData = strReturnValue;
@@ -54,7 +56,7 @@ public static class BlutoothManager{
 			}*/
 
 		}else{
-
+			Debug.Log("null");
 			//ForBluetoothState = "블루투스 연결이 불가능 합니다.";
 		}
 		
@@ -73,7 +75,7 @@ public static class BlutoothManager{
 		if( _AndroidpluginObj != null )
 		{
 			if(address.Equals(""))
-				address = "98:D3:31:40:08:84";
+				address = "78:A5:04:54:20:40";
 
 			return _AndroidpluginObj.Call<string>("bluetoothConnection",address); //"98:D3:31:40:08:84"
 
@@ -84,5 +86,4 @@ public static class BlutoothManager{
 	}
 
 
-	#endif // UNITY_ANDROID
 }
