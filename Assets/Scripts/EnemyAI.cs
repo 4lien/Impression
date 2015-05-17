@@ -18,6 +18,7 @@ public class EnemyAI : GameObjectParent {
 	public GameObject bulletHole;
 	public LayerMask ignoreRaycast;
 	public Transform[] wayPoints;
+	public bool navON=true;
 	CapsuleCollider colider;
 	//CharacterMotor motor;
 	
@@ -36,14 +37,13 @@ public class EnemyAI : GameObjectParent {
 	static ArrayList bulletHoles;
 	void Start () {
 		//bulletHoleMask = ~bulletHoleMask;
-		controller = GetComponent<CharacterController>();
 		bulletHoles=new ArrayList();
-//		motor=this.GetComponent<CharacterMotor>();
 		player = GameObject.FindGameObjectWithTag("Player");
-		nav = GetComponent < NavMeshAgent> ();
 		col = GetComponent<SphereCollider> ();
 		colider = GetComponent<CapsuleCollider> ();
-		hp = 100;
+		if (navON) {
+			nav = GetComponent < NavMeshAgent> ();
+		}
 	}
 	
 
@@ -54,36 +54,37 @@ public class EnemyAI : GameObjectParent {
 	private NavMeshAgent nav;
 	private GameObject player;
 	//private LastPlayerSighting lastPlayerSighting;
-	private float chaseTimer;
 	private float patrolTimer;
 	private int wayPointIndex;
 	private SphereCollider col;
-	private float fieldOfViewAngle=110f;
+	public float fieldOfViewAngle=110f;
 	private int wpIndex=0;
 	private float waitTimer=0;
 	public float waitTime=0.0001f;
-	bool playerInSight=false;
-	void OnTriggerStay(Collider other) {
-		if(player.transform!=other.transform||hp<=0)
+	bool sawPlayer=false;
+	void OnTriggerStay(Collider other) {	//범위안에 플레이어 포착
+		if(player.transform!=other.transform||hp<=0)	//플레이어가 아니거나 죽었으면 안함
 			return;
 		Vector3 direction = other.transform.position - transform.position;
 		float angle = Vector3.Angle (direction, transform.forward);
 		if (angle < fieldOfViewAngle * 0.5f) {	//시야 범위 안에 있을때
-			nav.Stop ();
 			RaycastHit hit;
-			if(Physics.Raycast(camera.transform.position,direction.normalized,out hit,col.radius,~ignoreRaycast)){	//보이면
-				if(hit.collider.gameObject==other.gameObject){
-					Quaternion targetRotation = Quaternion.LookRotation(new Vector3(direction.x+Random.Range(-3f,3f),0,direction.z)); //위아래 제외
-					transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, 5f * Time.deltaTime);	
-					targetRotation = Quaternion.LookRotation(direction);	//위아래 빼고 몸통만
-					Vector3 targetPos=other.transform.position;
-					targetPos.y+=1.4f+Random.Range(-0.1f,0.1f); //플레이어 크기가 2f 즉 1.4부분을 조준
-					camera.transform.LookAt(targetPos);	//타겟을 보게 한다음에
-					Vector3 temp=camera.transform.localEulerAngles;
-					temp.y=0;	//y랑 z를 0으로
-					temp.z=0;
-					camera.transform.localEulerAngles=temp;	//y랑 z만 0으로
-					gunFire();
+			if (Physics.Raycast (camera.transform.position, direction.normalized, out hit, col.radius, ~ignoreRaycast)) {	//보이면
+				if (hit.collider.gameObject == other.gameObject) {
+					nav.Stop ();
+					chaseTimer=0f;
+					sawPlayer=true;
+					Quaternion targetRotation = Quaternion.LookRotation (new Vector3 (direction.x + Random.Range (-3f, 3f), 0, direction.z)); //위아래 제외
+					transform.rotation = Quaternion.Slerp (transform.rotation, targetRotation, 5f * Time.deltaTime);	
+					targetRotation = Quaternion.LookRotation (direction);	//위아래 빼고 몸통만
+					Vector3 targetPos = other.transform.position;
+					targetPos.y += 1.4f + Random.Range (-0.1f, 0.1f); //플레이어 크기가 2f 즉 1.4부분을 조준
+					camera.transform.LookAt (targetPos);	//타겟을 보게 한다음에
+					Vector3 temp = camera.transform.localEulerAngles;
+					temp.y = 0;	//y랑 z를 0으로
+					temp.z = 0;
+					camera.transform.localEulerAngles = temp;	//y랑 z만 0으로
+					gunFire ();
 				}
 			}
 		}
@@ -107,15 +108,7 @@ public class EnemyAI : GameObjectParent {
 		this.enabled = false;
 	}
 	/* AI구현 부분 끝 */
-
-
-
-
-
-	
 	RaycastHit hitRay;
-	int lastBullet = 0;
-	
 	void gunFire(){
 		if (fireDelay == 0) {	//빵하고 쏨.
 			fireDelay += Time.deltaTime*gunSpeed;
@@ -129,6 +122,9 @@ public class EnemyAI : GameObjectParent {
 	}
 	
 	// Update is called once per frame
+	bool arrived=false;
+	float chaseTimer;
+	public float chaseTime=3f;	//해당 시간만큼 플레이어 쫒아감.
 	void Update () {
 		if (hp <= 0)
 			return;
@@ -138,43 +134,33 @@ public class EnemyAI : GameObjectParent {
 		} else {
 			fireDelay=0;
 		}
+		if (!navON)
+			return;
+		if (sawPlayer) {	//플레이어를 봤으면 추격 시작
+			chaseTimer+=Time.deltaTime;
+			nav.SetDestination (player.transform.position);
+		}
+		if (chaseTimer > chaseTime) {	//추격 시간 지났을경우
+			sawPlayer=false;	//못본걸로
+			chaseTimer=0f;
+		}
 
-		nav.SetDestination (wayPoints [wpIndex].position);
-		if (nav.remainingDistance < nav.stoppingDistance) {	//도착하였으면
-			waitTimer+=Time.deltaTime;	//기다림
-			if(waitTimer>waitTime){	//다 기다렸으면
-				waitTimer=0f;
-				wpIndex++;
-				wpIndex=wpIndex%wayPoints.Length;	//인덱스 증가
+		if (!sawPlayer) {	//플레이어를 보지 못했으면.
+			if (nav.remainingDistance < nav.stoppingDistance) {	//도착하였으면
+				waitTimer += Time.deltaTime;	//기다림
+				if (waitTimer > waitTime) {	//다 기다렸으면
+					waitTimer = 0f;
+					wpIndex++;
+					wpIndex = wpIndex % wayPoints.Length;	//인덱스 증가
+					nav.SetDestination (wayPoints [wpIndex].position);
+
+				}
+			}else{	//도중이면
 				nav.SetDestination (wayPoints [wpIndex].position);
 			}
-
 		}
 		Ani.SetFloat ("speed", nav.velocity.magnitude);
+	}
 
-	}
-	int getDirection(){
-		int temp = 0;
-		temp += forward ? -1 : 0;
-		temp += backward ? 1 : 0;
-		temp += left ? -3 : 0;
-		temp += right ? 3 : 0;
-		return temp;
-	}
-	public void MoveForward(bool val){
-		forward = val;
-	}
-	public void MoveBack(bool val){
-		backward = val;
-	}
-	public void MoveLeft(bool val){
-		left = val;
-	}
-	public void MoveRight(bool val){
-		right = val;
-	}
-	public void Fire(bool val)	{
-		shooting=val;
-	}
 	
 }
