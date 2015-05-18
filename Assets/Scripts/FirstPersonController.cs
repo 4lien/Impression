@@ -209,16 +209,22 @@ public class FirstPersonController : GameObjectParent {
 	}
 	void dead(){
 		Ani.SetBool ("dead",true);
+		con.stepOffset = 0f;
+		con.enabled = false;
+		motor.enabled = false;
 		StartCoroutine (destroy());
 	}
 
 	IEnumerator destroy(){
 		yield return new WaitForSeconds(1.5f);
-		con.stepOffset = 0f;
-		con.enabled = false;
-		motor.enabled = false;
 		camera.transform.parent = camPos.transform;	//카메라 이동
+		StartCoroutine (reset());
 	}
+	IEnumerator reset(){
+		yield return new WaitForSeconds(5f);
+		Application.LoadLevel (Application.loadedLevelName);
+	}
+
 	int getDirection(){
 		int temp = 0;
 		temp += forward ? -1 : 0;

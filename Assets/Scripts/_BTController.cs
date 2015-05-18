@@ -25,16 +25,17 @@ public class _BTController : MonoBehaviour {
 			
 			switch(button){
 			case 'q' :
-				isForDown = false; 
+				isLeftDown = false;
+
 				break;
 			case 'x' :
-				isBackDown = false; 
+				isRightDown = false; 
 				break;
 			case 'k' :
-				isLeftDown = false; 
+				isBackDown = false;
 				break;
 			case 'r' :
-				isRightDown = false; 
+				isForDown = false; 
 				break;
 			case 's' :
 				isFireDown = false; 
@@ -43,16 +44,17 @@ public class _BTController : MonoBehaviour {
 				isJumpDown = false; 
 				break;
 			case 'Q' :
-				isForDown = true; 
-				break;
-			case 'X' :
-				isBackDown = true; 
-				break;
-			case 'K' :
 				isLeftDown = true; 
 				break;
+			case 'X' :
+				isRightDown = true;
+					
+				break;
+			case 'K' :
+				isBackDown = true;
+				break;
 			case 'R' :
-				isRightDown = true; 
+				isForDown = true; 
 				break;
 			case 'S' :
 				isFireDown = true; 
