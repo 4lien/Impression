@@ -70,10 +70,21 @@ public class EnemyAI : GameObjectParent {
 		if (angle < fieldOfViewAngle * 0.5f) {	//시야 범위 안에 있을때
 			RaycastHit hit;
 			if (Physics.Raycast (camera.transform.position, direction.normalized, out hit, viewDistance, ~ignoreRaycast)) {	//보이면
-				if (hit.collider.gameObject == p.gameObject) {
-					nav.Stop ();
-					chaseTimer=0f;
-					sawPlayer=true;
+				/* 바라보는 각도와 애니메이션 일치 */
+				Vector3 degree = camera.transform.localRotation.eulerAngles;
+				if (degree.x > 0 && degree.x <= 90) {
+					Ani.SetFloat ("lookDegree",-degree.x);
+				}
+				if (degree.x < 360 && degree.x >= 270) {
+					Ani.SetFloat ("lookDegree",360-degree.x);
+				}
+
+				if (hit.collider.gameObject == p.gameObject) { //범위안 객체가 보이는 객체이면
+					if(navON){
+						nav.Stop ();
+						chaseTimer=0f;
+						sawPlayer=true;
+					}
 					Quaternion targetRotation = Quaternion.LookRotation (new Vector3 (direction.x + Random.Range (-3f, 3f), 0, direction.z)); //위아래 제외
 					transform.rotation = Quaternion.Slerp (transform.rotation, targetRotation, 5f * Time.deltaTime);	
 					targetRotation = Quaternion.LookRotation (direction);	//위아래 빼고 몸통만
@@ -90,6 +101,7 @@ public class EnemyAI : GameObjectParent {
 		}
 	}
 	public void hit(float Damage){
+		sawPlayer = true;
 		hp -= Damage;
 		if (hp < 0)
 			dead ();
@@ -115,7 +127,7 @@ public class EnemyAI : GameObjectParent {
 			Instantiate(muzzleFlash,muzzlePosition.transform.position,transform.rotation);
 			if(Physics.Raycast(camera.transform.position,camera.transform.forward,out hitRay,viewDistance)){
 				if(hitRay.transform==player.transform){
-					playerCon.hit(damage);
+					playerCon.hit((int)(damage*Random.Range(0f,1f)));
 				}
 				Instantiate(hitEffect,hitRay.point,transform.rotation);
 			}
@@ -135,8 +147,13 @@ public class EnemyAI : GameObjectParent {
 		} else {
 			fireDelay=0;
 		}
-		if (!navON)
+
+		if (!navON) {
+			//가만히 있으면 collider가 검출이 안되기 때문
+			transform.position+=new Vector3(0.0001f,0.0001f,0.0001f);
+			transform.position-=new Vector3(0.0001f,0.0001f,0.0001f);
 			return;
+		}
 		if (sawPlayer) {	//플레이어를 봤으면 추격 시작
 			chaseTimer+=Time.deltaTime;
 			nav.SetDestination (player.transform.position);
@@ -154,6 +171,7 @@ public class EnemyAI : GameObjectParent {
 					wpIndex++;
 					wpIndex = wpIndex % wayPoints.Length;	//인덱스 증가
 					nav.SetDestination (wayPoints [wpIndex].position);
+					waitTime*=Random.Range(0.5f,1.5f);
 
 				}
 			}else{	//도중이면

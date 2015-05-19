@@ -2,11 +2,9 @@
 using System.Collections; 
 using UnityEngine.UI;
 public class Behavior_Cam_Tilt : MonoBehaviour { 
-	private Quaternion cameraBase = Quaternion.Euler(new Vector3(90f, 90f, 90f));
+	public Quaternion cameraBase = Quaternion.Euler(new Vector3(90f, 90f, 90f));
 	private Quaternion referanceRotation = Quaternion.identity; 
 	public const float lowPassFilterFactor = 0.8f; //가속도계 노이즈 필터 1~0
-	public float maxLookDown=80f;
-	public float maxLookUp=80f;
 	public GameObject camPos;
 	Vector3 thisLocPos;
 
@@ -26,21 +24,8 @@ public class Behavior_Cam_Tilt : MonoBehaviour {
 
 		Quaternion fromRotation = transform.rotation;
 
-		//Debug.Log (Input.gyro.attitude);
 		Quaternion toRotation = cameraBase * (ConvertRotation (referanceRotation * Input.gyro.attitude));
 		Vector3 degree = toRotation.eulerAngles;
-		/*
-		if (degree.x>0&&degree.x<=90&&degree.x >maxLookDown) {//최대 내려보는 각도보다 낮으면
-			toRotation.eulerAngles = new Vector3 (maxLookDown,degree.y,degree.z);
-		}
-		if (degree.x<360&&degree.x>=270&&degree.x < 360-maxLookUp) {//최대 내려보는 각도보다 높으면
-			toRotation.eulerAngles = new Vector3 (360-maxLookUp, degree.y, degree.z);
-		}
-		*/
-		/*GameObject canvas = GameObject.Find("Canvas");
-		Text[] text = canvas.GetComponentsInChildren<Text>();
-		text[4].text = toRotation.eulerAngles.ToString("G4");
-		*/
 
 		Quaternion slerp = Quaternion.Slerp (fromRotation, toRotation, lowPassFilterFactor);
 		transform.rotation = slerp;

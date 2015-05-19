@@ -57,8 +57,6 @@ public class FirstPersonController : GameObjectParent {
 		controller = GetComponent<CharacterController>();
 		bulletHoles=new ArrayList();
 		motor=this.GetComponent<CharacterMotor>();
-		damage = 80;
-		hp = 100;
 		con = GetComponent < CharacterController >();
 		AMMO.text = curAmmo + "/" + remainAmmo;
 	}
@@ -204,9 +202,9 @@ public class FirstPersonController : GameObjectParent {
 	}
 	public void hit(float Damage){
 		hp -= Damage;
-		HP.text = "HP:" + hp;
+		HP.text = "HP:" + (int)hp;
 		AudioSource.PlayClipAtPoint(hitSnd2,transform.position,0.2f);
-		if (hp < 0)
+		if (hp <= 0)
 			dead ();
 	}
 	void dead(){
