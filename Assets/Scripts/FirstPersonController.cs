@@ -35,12 +35,13 @@ public class FirstPersonController : GameObjectParent {
 	CharacterMotor motor;
 	CharacterController con;
 
-	bool forward=false;
-	bool backward=false;
-	bool left=false;
-	bool right=false;
-	bool shooting=false;
-	bool jump=false;
+	public bool forward=false;
+	public bool backward=false;
+	public bool left=false;
+	public bool right=false;
+	public bool shooting=false;
+	bool jumpFlag=false;
+	public bool jumping=false;
 	int arrayLength=30;
 	const float gunSpeed = 8f;
 	float fireDelay=0f;
@@ -130,6 +131,7 @@ public class FirstPersonController : GameObjectParent {
 			fireDelay=0;
 		}
 		if(shooting)gunFire();
+		Jump (jumping);
 		bool isBW=false;
 		float direct = 0f;
 		Ani.SetFloat ("runDirect",0);
@@ -298,7 +300,7 @@ public class FirstPersonController : GameObjectParent {
 			}
 			motor.inputJump = false;
 		}
-		if(jump&&!val){	//업
+		if(jumpFlag&&!val){	//업
 			//누른지 일정 시간이 안지났을때
 			if(jumpTimer<=waitJumpTime){
 				if(Physics.Raycast(transform.position, -Vector3.up,0.01f)){	//땅에 붙어있을때만
@@ -309,7 +311,7 @@ public class FirstPersonController : GameObjectParent {
 			reloadStop ();
 			jumpTimer=0f;
 		}
-		jump = val;
+		jumpFlag = val;
 	}
 
 

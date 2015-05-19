@@ -3,55 +3,45 @@ using System.Collections;
 
 [RequireComponent (typeof (CharacterMotor))]
 public class _OSDController : MonoBehaviour {
-	private bool isForDown = false;
-	private bool isBackDown = false;
-	private bool isLeftDown = false;
-	private bool isRightDown = false;
-	private bool isFireDown=false;
-	private bool isJumpDown=false;
+	private FirstPersonController con;
+	void Start(){
+		con = GameObject.FindGameObjectWithTag ("Player").GetComponent<FirstPersonController> ();
+	}
 	public GameObject player;
 	public void onForwardDown(){
-		isForDown = true;
+		con.forward = true;
 	}
 	public void onForwardUP(){
-		isForDown = false;
+		con.forward = false;
 	}
 	public void onBackDown(){
-		isBackDown = true;
+		con.backward = true;
 	}
 	public void onBackUP(){
-		isBackDown = false;
+		con.backward = false;
 	}
 	public void onLeftDown(){
-		isLeftDown = true;
+		con.left = true;
 	}
 	public void onLeftUP(){
-		isLeftDown = false;
+		con.left = false;
 	}
 	public void onRightDown(){
-		isRightDown = true;
+		con.right = true;
 	}
 	public void onRightUP(){
-		isRightDown = false;
+		con.right = false;
 	}
 	public void onFireDown(){
-		isFireDown = true;
+		con.shooting= true;
 	}
 	public void onFireUp(){
-		isFireDown = false;
+		con.shooting = false;
 	}
 	public void onJumpDown(){
-		isJumpDown = true;
+		con.jumping = true;
 	}
 	public void onJumpUp(){
-		isJumpDown = false;
-	}
-	void Update(){
-		player.SendMessage ("MoveForward",isForDown);
-		player.SendMessage ("MoveBack",isBackDown);
-		player.SendMessage ("MoveLeft",isLeftDown);
-		player.SendMessage ("MoveRight",isRightDown);
-		player.SendMessage ("Fire", isFireDown);
-		player.SendMessage ("Jump",isJumpDown);
+		con.jumping = false;
 	}
 }

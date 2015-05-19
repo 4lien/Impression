@@ -8,7 +8,6 @@ public class EnemyAI : GameObjectParent {
 	public float speed = 6.0F;
 	public float jumpSpeed = 8.0F;
 	public float gravity = 20.0F;
-	public float hitRange= 5F;
 	public AudioClip fireSnd;
 	public GameObject muzzleFlash;
 	public GameObject gun;
@@ -39,7 +38,7 @@ public class EnemyAI : GameObjectParent {
 		//bulletHoleMask = ~bulletHoleMask;
 		bulletHoles=new ArrayList();
 		player = GameObject.FindGameObjectWithTag("Player");
-		col = GetComponent<SphereCollider> ();
+		playerCon = player.GetComponent<FirstPersonController> ();
 		colider = GetComponent<CapsuleCollider> ();
 		if (navON) {
 			nav = GetComponent < NavMeshAgent> ();
@@ -53,31 +52,32 @@ public class EnemyAI : GameObjectParent {
 	//private EnemySight enemySight;
 	private NavMeshAgent nav;
 	private GameObject player;
+	private FirstPersonController playerCon;
 	//private LastPlayerSighting lastPlayerSighting;
 	private float patrolTimer;
 	private int wayPointIndex;
-	private SphereCollider col;
 	public float fieldOfViewAngle=110f;
+	public float viewDistance=15f;
 	private int wpIndex=0;
 	private float waitTimer=0;
 	public float waitTime=0.0001f;
 	bool sawPlayer=false;
-	void OnTriggerStay(Collider other) {	//범위안에 플레이어 포착
-		if(player.transform!=other.transform||hp<=0)	//플레이어가 아니거나 죽었으면 안함
+	void OnTriggerStay(Collider p) {	//범위안에 플레이어 포착
+		if(player.transform!=p.transform||hp<=0)	//플레이어가 아니거나 죽었으면 안함
 			return;
-		Vector3 direction = other.transform.position - transform.position;
+		Vector3 direction = p.transform.position - transform.position;
 		float angle = Vector3.Angle (direction, transform.forward);
 		if (angle < fieldOfViewAngle * 0.5f) {	//시야 범위 안에 있을때
 			RaycastHit hit;
-			if (Physics.Raycast (camera.transform.position, direction.normalized, out hit, col.radius, ~ignoreRaycast)) {	//보이면
-				if (hit.collider.gameObject == other.gameObject) {
+			if (Physics.Raycast (camera.transform.position, direction.normalized, out hit, viewDistance, ~ignoreRaycast)) {	//보이면
+				if (hit.collider.gameObject == p.gameObject) {
 					nav.Stop ();
 					chaseTimer=0f;
 					sawPlayer=true;
 					Quaternion targetRotation = Quaternion.LookRotation (new Vector3 (direction.x + Random.Range (-3f, 3f), 0, direction.z)); //위아래 제외
 					transform.rotation = Quaternion.Slerp (transform.rotation, targetRotation, 5f * Time.deltaTime);	
 					targetRotation = Quaternion.LookRotation (direction);	//위아래 빼고 몸통만
-					Vector3 targetPos = other.transform.position;
+					Vector3 targetPos = p.transform.position;
 					targetPos.y += 1.4f + Random.Range (-0.1f, 0.1f); //플레이어 크기가 2f 즉 1.4부분을 조준
 					camera.transform.LookAt (targetPos);	//타겟을 보게 한다음에
 					Vector3 temp = camera.transform.localEulerAngles;
@@ -97,7 +97,6 @@ public class EnemyAI : GameObjectParent {
 	void dead(){
 		Ani.SetBool ("dead",true);
 		nav.enabled = false;
-		col.enabled = false;
 		StartCoroutine (destroy());
 	}
 	
@@ -114,8 +113,10 @@ public class EnemyAI : GameObjectParent {
 			fireDelay += Time.deltaTime*gunSpeed;
 			AudioSource.PlayClipAtPoint (fireSnd, muzzlePosition.transform.position);
 			Instantiate(muzzleFlash,muzzlePosition.transform.position,transform.rotation);
-			if(Physics.Raycast(camera.transform.position,camera.transform.forward,out hitRay,col.radius)){
-				hitRay.transform.SendMessageUpwards("hit",damage);
+			if(Physics.Raycast(camera.transform.position,camera.transform.forward,out hitRay,viewDistance)){
+				if(hitRay.transform==player.transform){
+					playerCon.hit(damage);
+				}
 				Instantiate(hitEffect,hitRay.point,transform.rotation);
 			}
 		}

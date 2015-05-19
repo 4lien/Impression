@@ -3,78 +3,53 @@ using System.Collections;
 
 public class _BTController : MonoBehaviour {
 
-	private bool isForDown = false; //u
-	private bool isBackDown = false; //d
-	private bool isLeftDown = false; //l
-	private bool isRightDown = false; //r
-	private bool isFireDown=false; //s
-	private bool isJumpDown=false; //j
 	private char[] buttonRead;
-	public GameObject player;
+	private FirstPersonController con;
 	void Start(){
-		player = GameObject.FindGameObjectWithTag ("Player");
+		con = GameObject.FindGameObjectWithTag ("Player").GetComponent<FirstPersonController> ();
 	}
 	void Update(){
-		
-		
-		
 		BlutoothManager.getBTData ();
 		buttonRead= ForBluetoothState.getData.ToCharArray();
-		
 		foreach (char button in buttonRead){
-			
 			switch(button){
 			case 'q' :
-				isLeftDown = false;
-
+				con.left=false;
 				break;
 			case 'x' :
-				isRightDown = false; 
+				con.right=false;
 				break;
 			case 'k' :
-				isBackDown = false;
+				con.backward=false;
 				break;
 			case 'r' :
-				isForDown = false; 
+				con.forward=false;
 				break;
 			case 's' :
-				isFireDown = false; 
+				con.shooting=false;
 				break;
 			case 'j' :
-				isJumpDown = false; 
+				con.jumping=false;
 				break;
 			case 'Q' :
-				isLeftDown = true; 
+				con.left=true;
 				break;
 			case 'X' :
-				isRightDown = true;
-					
+				con.right=true;
 				break;
 			case 'K' :
-				isBackDown = true;
+				con.backward=true;
 				break;
 			case 'R' :
-				isForDown = true; 
+				con.forward=true;
 				break;
 			case 'S' :
-				isFireDown = true; 
+				con.shooting=true;
 				break;
 			case 'J' :
-				isJumpDown = true; 
+				con.jumping=true;
 				break;
 			}
 		}
-		
-		
-		
-		
-		player.SendMessage ("MoveForward",isForDown);
-		player.SendMessage ("MoveBack",isBackDown);
-		player.SendMessage ("MoveLeft",isLeftDown);
-		player.SendMessage ("MoveRight",isRightDown);
-		player.SendMessage ("Fire", isFireDown);
-		player.SendMessage ("Jump",isJumpDown);
-
-		
 	}
 }
