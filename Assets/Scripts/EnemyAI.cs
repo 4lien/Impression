@@ -108,7 +108,7 @@ public class EnemyAI : GameObjectParent {
 	}
 	void dead(){
 		Ani.SetBool ("dead",true);
-		nav.enabled = false;
+		if(navON)nav.enabled = false;
 		StartCoroutine (destroy());
 	}
 	

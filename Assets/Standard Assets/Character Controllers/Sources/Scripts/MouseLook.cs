@@ -30,7 +30,10 @@ public class MouseLook : MonoBehaviour {
 
 	float rotationX = 0F;
 	float rotationY = 0F;
-	
+
+	public GameObject camPos;
+	Vector3 thisLocPos;
+
 	Quaternion originalRotation;
 
 	void Update ()
@@ -39,23 +42,28 @@ public class MouseLook : MonoBehaviour {
 		{
 			// Read the mouse input axis
 			rotationX += Input.GetAxis("Mouse X") * sensitivityX;
-			rotationY += Input.GetAxis("Mouse Y") * sensitivityY;
-
 			rotationX = ClampAngle (rotationX, minimumX, maximumX);
-			rotationY = ClampAngle (rotationY, minimumY, maximumY);
-			
 			Quaternion xQuaternion = Quaternion.AxisAngle (Vector3.up, Mathf.Deg2Rad * rotationX);
+			transform.parent.localRotation = originalRotation * xQuaternion;
+
+			rotationY += Input.GetAxis("Mouse Y") * sensitivityY;
+			rotationY = ClampAngle (rotationY, minimumY, maximumY);
 			Quaternion yQuaternion = Quaternion.AxisAngle (Vector3.left, Mathf.Deg2Rad * rotationY);
-			
-			transform.localRotation = originalRotation * xQuaternion * yQuaternion;
+			transform.localRotation = originalRotation * yQuaternion;
+
+			/* 카메라 위치 */
+			transform.localPosition = new Vector3 (transform.localPosition.x,transform.localPosition.y,transform.localPosition.z);
+			Vector3 camPosv = camPos.transform.position;
+			transform.position = camPosv;
+
 		}
 		else if (axes == RotationAxes.MouseX)
 		{
 			rotationX += Input.GetAxis("Mouse X") * sensitivityX;
 			rotationX = ClampAngle (rotationX, minimumX, maximumX);
-
 			Quaternion xQuaternion = Quaternion.AxisAngle (Vector3.up, Mathf.Deg2Rad * rotationX);
-			transform.localRotation = originalRotation * xQuaternion;
+			transform.parent.localRotation = originalRotation * xQuaternion;
+
 		}
 		else
 		{
@@ -64,7 +72,14 @@ public class MouseLook : MonoBehaviour {
 
 			Quaternion yQuaternion = Quaternion.AxisAngle (Vector3.left, Mathf.Deg2Rad * rotationY);
 			transform.localRotation = originalRotation * yQuaternion;
+
+			transform.localPosition = new Vector3 (transform.localPosition.x,transform.localPosition.y,transform.localPosition.z);
+			Vector3 camPosv = camPos.transform.position;
+			transform.position = camPosv;
 		}
+
+
+
 	}
 	
 	void Start ()

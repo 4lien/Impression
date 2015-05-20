@@ -29,6 +29,8 @@ public class Behavior_Cam_Tilt : MonoBehaviour {
 
 		Quaternion slerp = Quaternion.Slerp (fromRotation, toRotation, lowPassFilterFactor);
 		transform.rotation = slerp;
+
+		/* 카메라 위치 지정 */
 		transform.localPosition = new Vector3 (transform.localPosition.x,transform.localPosition.y,transform.localPosition.z);
 		Vector3 camPosv = camPos.transform.position;
 		transform.position = camPosv;
