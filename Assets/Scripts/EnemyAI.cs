@@ -171,8 +171,10 @@ public class EnemyAI : GameObjectParent {
 					wpIndex++;
 					wpIndex = wpIndex % wayPoints.Length;	//인덱스 증가
 					nav.SetDestination (wayPoints [wpIndex].position);
-					waitTime*=Random.Range(0.5f,1.5f);
-
+					if(Random.Range(0,2)>0)
+						waitTime*=1.3f;
+					else
+						waitTime/=1.3f;
 				}
 			}else{	//도중이면
 				nav.SetDestination (wayPoints [wpIndex].position);
