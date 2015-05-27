@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
-
+/*
 public class myNetworkPlayer : Photon.MonoBehaviour
 {
 	private Vector3 correctPlayerPos = Vector3.zero; // We lerp towards this
@@ -39,9 +39,7 @@ public class myNetworkPlayer : Photon.MonoBehaviour
 			stream.SendNext(Ani.GetFloat("speed"));
 			stream.SendNext(Ani.GetFloat("lookDegree"));
 			stream.SendNext(Ani.GetBool("dead"));
-			
-			/*FirstPersonController myC = transform.Find("Player").gameObject.GetComponent<FirstPersonController>();
-			stream.SendNext((int)myC._characterState);*/
+
 		}
 		else
 		{
@@ -52,8 +50,7 @@ public class myNetworkPlayer : Photon.MonoBehaviour
 			speed=(float)stream.ReceiveNext();
 			lookDegree=(float)stream.ReceiveNext();
 			dead=(bool)stream.ReceiveNext();
-			/*myThirdPersonController myC = GetComponent<myThirdPersonController>();
-			myC._characterState = (CharacterState)stream.ReceiveNext();*/
 		}
 	}
 }
+*/

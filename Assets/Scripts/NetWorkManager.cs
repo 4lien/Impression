@@ -1,8 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class NetWorkManager : MonoBehaviour {
-	
+public class NetWorkManager : MonoBehaviour {}
+/*	
 	// Use this for initialization
 	void Start () {
 		connect ();
@@ -44,4 +44,4 @@ public class NetWorkManager : MonoBehaviour {
 		((MonoBehaviour)Player.GetComponent<FirstPersonController> ()).enabled = true;
 		((MonoBehaviour)Player.GetComponent<CharacterMotor> ()).enabled = true;
 	}
-}
+}*/
