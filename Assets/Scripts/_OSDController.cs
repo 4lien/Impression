@@ -5,7 +5,7 @@ using System.Collections;
 public class _OSDController : MonoBehaviour {
 	private FirstPersonController con;
 	void Start(){
-		con = GameObject.FindGameObjectWithTag ("Player").GetComponent<FirstPersonController> ();
+		con = transform.parent.gameObject.transform.FindChild ("Player").gameObject.GetComponent<FirstPersonController>();
 	}
 	public GameObject player;
 	public void onForwardDown(){

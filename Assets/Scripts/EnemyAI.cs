@@ -34,7 +34,9 @@ public class EnemyAI : GameObjectParent {
 	// Use this for initialization
 	
 	static ArrayList bulletHoles;
+	HP hp;
 	void Start () {
+		hp=GetComponent<HP> ();
 		//bulletHoleMask = ~bulletHoleMask;
 		bulletHoles=new ArrayList();
 		player = GameObject.FindGameObjectWithTag("Player");
@@ -63,7 +65,7 @@ public class EnemyAI : GameObjectParent {
 	public float waitTime=0.0001f;
 	bool sawPlayer=false;
 	void OnTriggerStay(Collider p) {	//범위안에 플레이어 포착
-		if(player.transform!=p.transform||hp<=0)	//플레이어가 아니거나 죽었으면 안함
+		if(player.transform!=p.transform||hp.val<=0)	//플레이어가 아니거나 죽었으면 안함
 			return;
 		Vector3 direction = p.transform.position - transform.position;
 		float angle = Vector3.Angle (direction, transform.forward);
@@ -102,8 +104,8 @@ public class EnemyAI : GameObjectParent {
 	}
 	public void hit(float Damage){
 		sawPlayer = true;
-		hp -= Damage;
-		if (hp < 0)
+		hp.val -= Damage;
+		if (hp.val < 0)
 			dead ();
 	}
 	void dead(){
@@ -139,7 +141,7 @@ public class EnemyAI : GameObjectParent {
 	float chaseTimer;
 	public float chaseTime=3f;	//해당 시간만큼 플레이어 쫒아감.
 	void Update () {
-		if (hp <= 0)
+		if (hp.val <= 0)
 			return;
 		Debug.DrawRay(camera.transform.position, camera.transform.forward*100, Color.red);
 		if (fireDelay > 0) {

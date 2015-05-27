@@ -29,7 +29,7 @@ public class FirstPersonController : GameObjectParent {
 	public GameObject camPos;
 	public GameObject bulletHole;
 	public LayerMask ignoreRaycast;
-	public Text HP;
+	public Text HPtext;
 	public Text AMMO;
 	public ProgressBar ReloadBar;
 	CharacterMotor motor;
@@ -52,8 +52,10 @@ public class FirstPersonController : GameObjectParent {
 		// Use this for initialization
 
 	static ArrayList bulletHoles;
+	HP hp;
 	void Start () {
 		//bulletHoleMask = ~bulletHoleMask;
+		hp = GetComponent<HP> ();
 		controller = GetComponent<CharacterController>();
 		bulletHoles=new ArrayList();
 		motor=this.GetComponent<CharacterMotor>();
@@ -117,8 +119,8 @@ public class FirstPersonController : GameObjectParent {
 
 	// Update is called once per frame
 	void Update () {
-		if (hp <= 0) {
-			HP.text="HP:0";
+		if (hp.val <= 0) {
+			HPtext.text="HP:0";
 			return;
 		}
 		Debug.DrawRay(camera.transform.position, camera.transform.forward*100, Color.red);
@@ -181,6 +183,10 @@ public class FirstPersonController : GameObjectParent {
 				//controller.Move (transform.forward * speed * Time.deltaTime);
 				break;
 			}
+			default:{
+				motor.inputMoveDirection=Vector3.zero;
+				break;
+			}
 		}
 
 		if (!isBW) {
@@ -201,10 +207,10 @@ public class FirstPersonController : GameObjectParent {
 
 	}
 	public void hit(float Damage){
-		hp -= Damage;
-		HP.text = "HP:" + (int)hp;
+		hp.val -= Damage;
+		HPtext.text = "HP:" + (int)hp.val;
 		AudioSource.PlayClipAtPoint(hitSnd2,transform.position,0.2f);
-		if (hp <= 0)
+		if (hp.val <= 0)
 			dead ();
 	}
 	void dead(){
@@ -276,7 +282,7 @@ public class FirstPersonController : GameObjectParent {
 	bool reloadFlag=false;
 	bool reloadSndFlag=true;
 	public void Jump(bool val){
-		if (hp <= 0)
+		if (hp.val <= 0)
 			return;
 		if (val) {	//다운
 			jumpTimer+=Time.deltaTime;

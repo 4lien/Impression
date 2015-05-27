@@ -6,7 +6,7 @@ public class _BTController : MonoBehaviour {
 	private char[] buttonRead;
 	private FirstPersonController con;
 	void Start(){
-		con = GameObject.FindGameObjectWithTag ("Player").GetComponent<FirstPersonController> ();
+		con = transform.parent.gameObject.transform.FindChild ("Player").gameObject.GetComponent<FirstPersonController>();
 	}
 	void Update(){
 		BlutoothManager.getBTData ();
