@@ -23,8 +23,9 @@ public class Exit : MonoBehaviour {
 	}
 	
 	IEnumerator gameClear(){
+		infoText.text ="Game Clear";
 		infoText.text += "\r\nScore:" + con.getScore ()+" ("+con.getKilled()+")";
-		yield return new WaitForSeconds(3f);	//3초 기다린 후 
+		yield return new WaitForSeconds(5f);	//5초 기다린 후 
 		infoText.text+="\r\n\r\nclick to reset";
 		while (!con.shooting) {	//클릭이 될때까지
 			yield return null;	//기다림

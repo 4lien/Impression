@@ -29,8 +29,10 @@ public class FirstPersonController : GameObjectParent {
 	public GameObject camPos;
 	public GameObject bulletHole;
 	public LayerMask ignoreRaycast;
-	public Text HPtext;
-	public Text AMMO;
+	GameObject OSD;
+	Text HPtext;
+	Text AMMO;
+	Text Score;
 	public ProgressBar ReloadBar;
 	CharacterMotor motor;
 	CharacterController con;
@@ -54,6 +56,10 @@ public class FirstPersonController : GameObjectParent {
 	static ArrayList bulletHoles;
 	HP hp;
 	void Start () {
+		OSD=GameObject.FindGameObjectWithTag("OSD");
+		HPtext = OSD.transform.Find ("HP").gameObject.GetComponent<Text>();
+		AMMO = OSD.transform.Find ("AMMO").gameObject.GetComponent<Text>();
+		Score = OSD.transform.Find ("Score").gameObject.GetComponent<Text>();
 		pcamera= transform.Find("Main Camera").gameObject;
 		hp = GetComponent<HP> ();
 		controller = GetComponent<CharacterController>();
@@ -61,6 +67,7 @@ public class FirstPersonController : GameObjectParent {
 		motor=this.GetComponent<CharacterMotor>();
 		con = GetComponent < CharacterController >();
 		AMMO.text = curAmmo + "/" + remainAmmo;
+		StartCoroutine (waitAction ());
 	}
 
 	RaycastHit hitRay;
@@ -109,8 +116,15 @@ public class FirstPersonController : GameObjectParent {
 	}
 
 
+	private IEnumerator waitAction(){
+		while (!shooting&&!left&&!right&&!forward&&!backward&&!jumping) {
+			playTime=0f;	//첫입력이 들어오기 전까지 시간 시작하지 않음
+			yield return null;
+		}
+	}
 
 	// Update is called once per frame
+	private bool start=false;
 	private float playTime=0f;
 	void Update () {
 		playTime += Time.deltaTime;
@@ -215,6 +229,7 @@ public class FirstPersonController : GameObjectParent {
 		if (addscore <= 20)
 			addscore = 20;
 		score += addscore;
+		Score.text = "Score:" + getScore();
 	}
 	public int getScore(){
 		return (int)Mathf.Round (score);
