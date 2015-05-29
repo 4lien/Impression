@@ -25,7 +25,7 @@ public class FirstPersonController : GameObjectParent {
 	public GameObject hitEffect;
 	public GameObject gun;
 	public GameObject muzzlePosition;
-	public GameObject camera;
+	private GameObject pcamera;
 	public GameObject camPos;
 	public GameObject bulletHole;
 	public LayerMask ignoreRaycast;
@@ -54,7 +54,7 @@ public class FirstPersonController : GameObjectParent {
 	static ArrayList bulletHoles;
 	HP hp;
 	void Start () {
-		//bulletHoleMask = ~bulletHoleMask;
+		pcamera= transform.Find("Main Camera").gameObject;
 		hp = GetComponent<HP> ();
 		controller = GetComponent<CharacterController>();
 		bulletHoles=new ArrayList();
@@ -63,10 +63,7 @@ public class FirstPersonController : GameObjectParent {
 		AMMO.text = curAmmo + "/" + remainAmmo;
 	}
 
-
-
 	RaycastHit hitRay;
-	//RaycastHit hit2;
 	int lastBullet = 0;
 
 	bool noammoFlag=false;
@@ -80,17 +77,13 @@ public class FirstPersonController : GameObjectParent {
 				return;
 			}
 			curAmmo--;
-			if(curAmmo<=0)noammoFlag=true;
+			if(curAmmo<=0)noammoFlag=true; 
 			reloadStop();
 			fireDelay += Time.deltaTime*gunSpeed;
-			//AudioSource.PlayClipAtPoint (fireSnd, muzzlePosition.transform.position);
 			muzzlePosition.audio.PlayOneShot(fireSnd);
 			Instantiate(muzzleFlash,muzzlePosition.transform.position,transform.rotation);
-			Physics.Raycast (camera.transform.position, camera.transform.forward,out hitRay, 100,~ignoreRaycast);
-			//Physics.SphereCast(camera.transform.position,hitRange, camera.transform.forward,out hit2, 100,dynamicLayer);
+			Physics.Raycast (pcamera.transform.position, pcamera.transform.forward,out hitRay, 100,~ignoreRaycast);
 
-			//if(hit2.transform!=null)
-			//	hit2.transform.SendMessageUpwards("hit",damage);
 			if(hitRay.transform==null)return;
 			if(hitRay.transform.tag=="unstatic"){
 				hitRay.transform.SendMessageUpwards("hit",damage);
@@ -118,12 +111,14 @@ public class FirstPersonController : GameObjectParent {
 
 
 	// Update is called once per frame
+	private float playTime=0f;
 	void Update () {
+		playTime += Time.deltaTime;
 		if (hp.val <= 0) {
 			HPtext.text="HP:0";
 			return;
 		}
-		Debug.DrawRay(camera.transform.position, camera.transform.forward*100, Color.red);
+		Debug.DrawRay(pcamera.transform.position, pcamera.transform.forward*100, Color.red);
 
 		if (fireDelay > 0) {
 			fireDelay-=Time.deltaTime;
@@ -133,7 +128,6 @@ public class FirstPersonController : GameObjectParent {
 		if(shooting)gunFire();
 		Jump (jumping);
 		bool isBW=false;
-		float direct = 0f;
 		Ani.SetFloat ("runDirect",0);
 		switch(getDirection()){
 			case -2 : {//↙
@@ -196,7 +190,7 @@ public class FirstPersonController : GameObjectParent {
 			Ani.SetFloat ("speed", -controller.velocity.magnitude);
 		}
 
-		Vector3 degree = camera.transform.localRotation.eulerAngles;
+		Vector3 degree = pcamera.transform.localRotation.eulerAngles;
 
 		if (degree.x > 0 && degree.x <= 90) {
 			Ani.SetFloat ("lookDegree",-degree.x);
@@ -213,6 +207,22 @@ public class FirstPersonController : GameObjectParent {
 		if (hp.val <= 0)
 			dead ();
 	}
+	private float score = 0f;
+	private int killed=0;
+	public void enemyKill(){
+		killed++;
+		float addscore = (180f - playTime)/180f*300f;
+		if (addscore <= 20)
+			addscore = 20;
+		score += addscore;
+	}
+	public int getScore(){
+		return (int)Mathf.Round (score);
+	}
+	public int getKilled(){
+		return killed;
+	}
+
 	void dead(){
 		Ani.SetBool ("dead",true);
 		con.stepOffset = 0f;
@@ -223,7 +233,7 @@ public class FirstPersonController : GameObjectParent {
 
 	IEnumerator destroy(){
 		yield return new WaitForSeconds(1.5f);
-		camera.transform.parent = camPos.transform;	//카메라 이동
+		pcamera.transform.parent = camPos.transform;	//카메라 이동
 		StartCoroutine (reset());
 	}
 	IEnumerator reset(){
@@ -262,7 +272,7 @@ public class FirstPersonController : GameObjectParent {
 		reloadTimer=0f;
 		gun.audio.Stop();
 		reloadSndFlag=true;
-	}
+	} 
 	public void reload(){
 		reloadStop ();
 
@@ -277,9 +287,7 @@ public class FirstPersonController : GameObjectParent {
 		noammoFlag = false;
 
 		AMMO.text = curAmmo + "/" + remainAmmo;
-		reloadFlag = true;
 	}
-	bool reloadFlag=false;
 	bool reloadSndFlag=true;
 	public void Jump(bool val){
 		if (hp.val <= 0)

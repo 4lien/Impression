@@ -6,10 +6,8 @@ public class Behavior_Cam_Tilt : MonoBehaviour {
 	private Quaternion referanceRotation = Quaternion.identity; 
 	public const float lowPassFilterFactor = 0.8f; //가속도계 노이즈 필터 1~0
 	public GameObject camPos;
-	Vector3 thisLocPos;
 
 	void Start() {
-		thisLocPos = transform.localPosition;
 		Screen.sleepTimeout=SleepTimeout.NeverSleep;//화면 꺼짐 방지
 		Input.gyro.enabled = true; 
 		//camera.nearClipPlane = 0.0001f;
@@ -21,12 +19,8 @@ public class Behavior_Cam_Tilt : MonoBehaviour {
 		transform.parent.eulerAngles = new Vector3 (v.x,v2.y,v.z);
 		transform.eulerAngles = v2;
 
-
 		Quaternion fromRotation = transform.rotation;
-
 		Quaternion toRotation = cameraBase * (ConvertRotation (referanceRotation * Input.gyro.attitude));
-		Vector3 degree = toRotation.eulerAngles;
-
 		Quaternion slerp = Quaternion.Slerp (fromRotation, toRotation, lowPassFilterFactor);
 		transform.rotation = slerp;
 

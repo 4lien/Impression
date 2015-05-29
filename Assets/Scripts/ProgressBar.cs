@@ -5,12 +5,10 @@ using System.Collections;
 public class ProgressBar : MonoBehaviour {
 	public float percent=0f;
 	RawImage gage;
-	RawImage bg;
 	// Use this for initialization
 	void Start () {
 		gage = transform.FindChild ("gage").GetComponent<RawImage> ();
-		bg =  GetComponent<RawImage>();
-	}
+	} 
 	
 	// Update is called once per frame
 	void Update () {

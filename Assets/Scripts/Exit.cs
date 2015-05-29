@@ -5,15 +5,30 @@ using System.Collections;
 public class Exit : MonoBehaviour {
 	public GameObject player;
 	public GameObject info;
+	private Text infoText;
+	private FirstPersonController con;
+	private bool hit=false;
+	void Start(){
+		con = player.GetComponent<FirstPersonController>();
+		infoText = info.GetComponent<Text> ();
+	}
 	void OnTriggerStay(Collider p) {	//범위안에 플레이어 포착
 		if(player.transform!=p.transform)	//플레이어가 아니거나 죽었으면 안함
 			return;
 		info.SetActive (true);
-		StartCoroutine (destroy());
+		if (!hit) {
+			hit=true;
+			StartCoroutine (gameClear ());
+		}
 	}
 	
-	IEnumerator destroy(){
-		yield return new WaitForSeconds(5f);
-		Application.LoadLevel (Application.loadedLevelName);
+	IEnumerator gameClear(){
+		infoText.text += "\r\nScore:" + con.getScore ()+" ("+con.getKilled()+")";
+		yield return new WaitForSeconds(3f);	//3초 기다린 후 
+		infoText.text+="\r\n\r\nclick to reset";
+		while (!con.shooting) {	//클릭이 될때까지
+			yield return null;	//기다림
+		}
+		Application.LoadLevel (Application.loadedLevelName);	//클릭이 됐으면 리셋
 	}
 }

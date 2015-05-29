@@ -35,7 +35,7 @@ public class MouseLook : MonoBehaviour {
 	Vector3 thisLocPos;
 
 	Quaternion originalRotation;
-
+	 
 	void Update ()
 	{
 		if (axes == RotationAxes.MouseXAndY)
